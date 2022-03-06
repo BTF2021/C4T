@@ -1,0 +1,191 @@
+package;
+
+import flixel.FlxG;
+import flixel.FlxState;
+import flixel.FlxSprite;
+import flixel.text.FlxText;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import flixel.system.FlxSound;
+import flixel.util.FlxColor;
+import flixel.util.FlxTimer;
+
+class TitleState extends FlxState
+{
+    var bg:FlxSprite;
+    var me:FlxText;
+    var title:FlxText;
+    var press:FlxText;
+    var doit:FlxText;
+
+    var confirm:FlxSound;
+
+    var finishAnimation:Bool = false;
+    var stop:Bool = false;
+
+    override public function create()
+    {
+        super.create();
+
+        bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.YELLOW);
+        bg.screenCenter();
+        add(bg);
+
+        me = new FlxText(0, 760);
+        me.size = 40;
+        me.color = 0xFF000000;
+        me.text = 'BTF Presents...';
+        me.screenCenter(X);
+        add(me);
+
+        title = new FlxText(0, -80);
+        title.size = 40;
+        title.color = 0xFF000000;
+        title.text = '(Temp)Pokemon Birds Fight';
+        title.screenCenter(X);
+        add(title);
+
+        press = new FlxText(0, 760);
+        press.size = 40;
+        press.color = 0xFF000000;
+        #if !mobile
+        press.text = 'Click anywhere to continue';
+        #else
+        press.text = 'Touch anywhere to continue';
+        #end
+        press.screenCenter(X);
+        add(press);
+
+        doit = new FlxText();
+        doit.size = 40;
+        doit.color = 0xFF000000;
+        #if !mobile
+        doit.text = 'Click to skip the intro';
+        #else
+        doit.text = 'Touch to skip the intro';
+        #end
+        doit.alpha = 0.5;
+        doit.screenCenter();
+        add(doit);
+
+        FlxTween.angle(me, me.angle, -2, 2, {ease: FlxEase.quartInOut});
+        FlxTween.angle(title, title.angle, -2, 2, {ease: FlxEase.quartInOut});
+        FlxTween.angle(press, press.angle, -2, 2, {ease: FlxEase.quartInOut});
+        FlxTween.tween(doit, {alpha:0.05}, 0.05, {ease: FlxEase.quartInOut});
+
+        confirm = FlxG.sound.load(AssetPaths.TempConfirm__ogg);
+
+        new FlxTimer().start(2, function(tmr:FlxTimer)
+        {
+            if (me.angle == -1)
+                FlxTween.angle(me, me.angle, 1, 2, {ease: FlxEase.quartInOut});
+            else
+                FlxTween.angle(me, me.angle, -1, 2, {ease: FlxEase.quartInOut});
+        }, 0);
+        new FlxTimer().start(2, function(tmr:FlxTimer)
+        {
+            if (title.angle == -1)
+                FlxTween.angle(title, title.angle, 1, 2, {ease: FlxEase.quartInOut});
+            else
+                FlxTween.angle(title, title.angle, -1, 2, {ease: FlxEase.quartInOut});
+        }, 0);
+        new FlxTimer().start(2, function(tmr:FlxTimer)
+        {
+            if (press.angle == -1)
+                FlxTween.angle(press, press.angle, 1, 2, {ease: FlxEase.quartInOut});
+            else
+                FlxTween.angle(press, press.angle, -1, 2, {ease: FlxEase.quartInOut});
+        }, 0);
+
+        if (FlxG.sound.music == null)
+        {
+            FlxG.sound.playMusic(AssetPaths.TitleTest__ogg, 1, true);
+        }
+
+        startIntro();
+
+    }
+    function startIntro()
+    {
+        if(!finishAnimation)
+        {   
+		    FlxG.sound.music.fadeIn(4, 0, 0.7);
+
+            new FlxTimer().start(3, Me, 1);
+            new FlxTimer().start(3.5, Title, 1);
+            new FlxTimer().start(6, Press, 1);
+        }    
+    }
+    override public function update(elapsed:Float)
+    {
+        super.update(elapsed);
+        #if mobile
+        for (touch in FlxG.touches.list)
+        {
+            if (touch.justPressed)
+            { 
+            finishAnimation = true;
+            me.y = 640;
+            FlxTween.angle(me, me.angle, 0, 0.5, {ease: FlxEase.quartInOut});
+            title.y = 40;
+            FlxTween.angle(title, title.angle, 0, 0.5, {ease: FlxEase.quartInOut});
+            press.y = 360;
+            FlxTween.angle(press, press.angle, 0, 0.5, {ease: FlxEase.quartInOut});
+            if (!stop) skipIntro();
+            }
+        }
+        #else
+        if (FlxG.mouse.justPressed)
+        { 
+            finishAnimation = true;
+            me.y = 640;
+            FlxTween.angle(me, me.angle, 0, 0.5, {ease: FlxEase.quartInOut});
+            title.y = 40;
+            FlxTween.angle(title, title.angle, 0, 0.5, {ease: FlxEase.quartInOut});
+            press.y = 360;
+            FlxTween.angle(press, press.angle, 0, 0.5, {ease: FlxEase.quartInOut});
+            if (!stop) skipIntro();
+        }
+        #end
+    }
+    function Me(timer:FlxTimer):Void
+    {
+        if (!finishAnimation)
+        {
+            FlxTween.tween(me, {alpha: 1, y: 660}, 0.2, {ease: FlxEase.quartInOut});
+        }
+    }
+    function Title(timer:FlxTimer):Void
+    {       
+        if (!finishAnimation)
+        {    
+            FlxTween.tween(title, {alpha: 1, y: 20}, 0.2, {ease: FlxEase.quartInOut});
+        }
+    }
+    function Press(timer:FlxTimer):Void
+    {    
+        if(!finishAnimation)
+        {       
+            FlxTween.tween(press, {alpha: 1, y: 360}, 0.2, {ease: FlxEase.quartInOut});
+            FlxTween.tween(doit, {alpha: 0, y: -100}, 0.2, {ease: FlxEase.quartInOut});
+        }
+    }
+    function skipIntro()
+    {
+        stop = true;
+        FlxG.camera.flash(FlxColor.WHITE, 1);
+        confirm.play(true);
+        new FlxTimer().start(0.3, function(tmr:FlxTimer)
+        {
+            FlxTween.angle(title, title.angle, 0, 0.5, {ease: FlxEase.quartInOut});
+            FlxTween.tween(me, {y: 760}, 0.5, {ease: FlxEase.quartInOut});
+            FlxTween.tween(press, {alpha: 0}, 0.5, {ease: FlxEase.quartInOut});
+            FlxTween.tween(doit, {alpha: 0, y: -100}, 0.1, {ease: FlxEase.quartInOut});
+        }, 1);
+        new FlxTimer().start(0.8, function(tmr:FlxTimer)
+        {
+            FlxG.switchState(new MainMenuState());
+        }, 1);   
+        //FlxG.sound.music.stop();
+    }
+}
