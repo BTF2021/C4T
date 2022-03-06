@@ -21,6 +21,8 @@ import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 
+using StringTools;
+
 class MainMenuState extends FlxState
 {
     var bg:FlxSprite;
@@ -61,6 +63,8 @@ class MainMenuState extends FlxState
     var back:FlxSprite;
     var backText:FlxText;
     #end
+
+    public static var gameVer:String = "0.1.0";
 
     override public function create()
     {
@@ -182,7 +186,7 @@ class MainMenuState extends FlxState
         #end
         verText.size = 12;
         verText.color = 0xFF000000;
-        verText.text = "Ver 0.1.0 (For closed beta testing only)";
+        verText.text = "Ver " + gameVer; //+ " (For closed beta testing only)";
         add(verText);
 
         info = new FlxText(480, 780);
@@ -249,18 +253,18 @@ class MainMenuState extends FlxState
             if (playSubLayer || creditsSubLayer || optionsSubLayer)subTitle.revive();
             FlxTween.tween(play, {alpha:1, y: 160}, 0.05, {ease: FlxEase.quartInOut});
             if (!playSubLayer && !optionsSubLayer && !creditsSubLayer)FlxTween.tween(playText, {alpha:1, y: 205}, 0.05, {ease: FlxEase.quartInOut});
-            else if (playSubLayer && !optionsSubLayer && !creditsSubLayer)FlxTween.tween(freeplayText, {alpha:1, y: 205}, 0.05, {ease: FlxEase.quartInOut});
-            else if (!playSubLayer && optionsSubLayer && !creditsSubLayer)FlxTween.tween(gameplayText, {alpha:1, y: 205}, 0.05, {ease: FlxEase.quartInOut});
-            else if (!playSubLayer && !optionsSubLayer && creditsSubLayer){FlxTween.tween(creatorText, {alpha:1, y: 205}, 0.05, {ease: FlxEase.quartInOut}); play.color = 0x494949;}
+            //else if (playSubLayer && !optionsSubLayer && !creditsSubLayer)FlxTween.tween(freeplayText, {alpha:1, y: 205}, 0.05, {ease: FlxEase.quartInOut});
+            //else if (!playSubLayer && optionsSubLayer && !creditsSubLayer)FlxTween.tween(gameplayText, {alpha:1, y: 205}, 0.05, {ease: FlxEase.quartInOut});
+            //else if (!playSubLayer && !optionsSubLayer && creditsSubLayer){FlxTween.tween(creatorText, {alpha:1, y: 205}, 0.05, {ease: FlxEase.quartInOut}); play.color = 0x494949;}
             FlxTween.tween(credits, {alpha:1, y: 300}, 0.1, {ease: FlxEase.quartInOut});
             if (!playSubLayer && !optionsSubLayer && !creditsSubLayer)FlxTween.tween(creditsText, {alpha:1, y: 345}, 0.1, {ease: FlxEase.quartInOut});
-            else if (playSubLayer && !optionsSubLayer && !creditsSubLayer){FlxTween.tween(challengesText, {alpha:1, y: 345}, 0.1, {ease: FlxEase.quartInOut}); credits.color = 0x494949;}
-            else if (!playSubLayer && optionsSubLayer && !creditsSubLayer)FlxTween.tween(aspectText, {alpha:1, y: 345}, 0.1, {ease: FlxEase.quartInOut}); //credits.color = 0x7F7F7F;}
-            else if (!playSubLayer && !optionsSubLayer && creditsSubLayer)FlxTween.tween(ogText, {alpha:1, y: 345}, 0.1, {ease: FlxEase.quartInOut});
-            if (!creditsSubLayer) {FlxTween.tween(options, {alpha:1, y: 440}, 0.15, {ease: FlxEase.quartInOut}); options.color = 0x494949;}
-            if (!playSubLayer && !optionsSubLayer && !creditsSubLayer)FlxTween.tween(optionsText, {alpha:1, y: 485}, 0.15, {ease: FlxEase.quartInOut});
-            else if (playSubLayer && !optionsSubLayer && !creditsSubLayer){FlxTween.tween(customizeText, {alpha:1, y: 485}, 0.15, {ease: FlxEase.quartInOut}); options.color = 0x494949;}
-            else if (!playSubLayer && optionsSubLayer && !creditsSubLayer)FlxTween.tween(otherText, {alpha:1, y: 485}, 0.15, {ease: FlxEase.quartInOut});
+            //else if (playSubLayer && !optionsSubLayer && !creditsSubLayer){FlxTween.tween(challengesText, {alpha:1, y: 345}, 0.1, {ease: FlxEase.quartInOut}); credits.color = 0x494949;}
+            //else if (!playSubLayer && optionsSubLayer && !creditsSubLayer)FlxTween.tween(aspectText, {alpha:1, y: 345}, 0.1, {ease: FlxEase.quartInOut}); //credits.color = 0x7F7F7F;}
+            //else if (!playSubLayer && !optionsSubLayer && creditsSubLayer)FlxTween.tween(ogText, {alpha:1, y: 345}, 0.1, {ease: FlxEase.quartInOut});
+            //if (!creditsSubLayer) {FlxTween.tween(options, {alpha:1, y: 440}, 0.15, {ease: FlxEase.quartInOut}); options.color = 0x494949;}
+            ///if (!playSubLayer && !optionsSubLayer && !creditsSubLayer)FlxTween.tween(optionsText, {alpha:1, y: 485}, 0.15, {ease: FlxEase.quartInOut});
+            //else if (playSubLayer && !optionsSubLayer && !creditsSubLayer){FlxTween.tween(customizeText, {alpha:1, y: 485}, 0.15, {ease: FlxEase.quartInOut}); options.color = 0x494949;}
+            //else if (!playSubLayer && optionsSubLayer && !creditsSubLayer)FlxTween.tween(otherText, {alpha:1, y: 485}, 0.15, {ease: FlxEase.quartInOut});
 
             #if mobile
             if (playSubLayer || optionsSubLayer || creditsSubLayer)
@@ -392,7 +396,10 @@ class MainMenuState extends FlxState
             {
                 info.text = "Play. What can I say more?";
                 info.screenCenter(X);
-                if(FlxG.mouse.justPressed){playButton();  info.text = "";}
+                if(FlxG.mouse.justPressed){//playButton();  info.text = "";}
+                DefaultData.initSave();
+                openSubState(new FreeplaySubState());
+                }
             }
             else if(!creditsSubLayer && !optionsSubLayer && playSubLayer && canBeClicked)
             {
@@ -434,9 +441,12 @@ class MainMenuState extends FlxState
             }
             if(!creditsSubLayer && !playSubLayer && !optionsSubLayer && canBeClicked)
             {
-                info.text = "Just to remind you who made the game. And maybe to annoy you...";
+                info.text = "Go to gulaaaaa... I mean go to where everything started.";//"Just to remind you who made the game. And maybe to annoy you...";
                 info.screenCenter(X);
-                if(FlxG.mouse.justPressed){creditsButton(); info.text = "";}
+                if(FlxG.mouse.justPressed){//creditsButton(); info.text = "";}
+                if(!FlxG.random.bool(1)) fancyOpenURL("https://scratch.mit.edu/projects/647644347/");
+                else fancyOpenURL("https://youtu.be/dQw4w9WgXcQ"); //HAHA, get rickrolled b!!1!
+                }
             }
             else if(creditsSubLayer && !playSubLayer && !optionsSubLayer && canBeClicked)
             {
@@ -532,7 +542,10 @@ class MainMenuState extends FlxState
                 {
                     info.text = "Play. What can I say more?";
                     info.screenCenter(X);
-                    if(touch.justReleased){playButton();  info.text = "";}
+                    if(touch.justReleased){//playButton();  info.text = "";}
+                    DefaultData.initSave();
+                    openSubState(new FreeplaySubState());
+                    }
                 }
                 else if(!creditsSubLayer && !optionsSubLayer && playSubLayer && canBeClicked)
                 {
@@ -576,7 +589,10 @@ class MainMenuState extends FlxState
                 {
                     info.text = "Just to remind you who made the game. And maybe to annoy you...";
                     info.screenCenter(X);
-                    if(touch.justReleased){creditsButton(); info.text = "";}
+                    if(touch.justReleased){//creditsButton(); info.text = "";}
+                    if(!FlxG.random.bool(1)) fancyOpenURL("https://scratch.mit.edu/projects/647644347/");
+                    else fancyOpenURL("https://youtu.be/dQw4w9WgXcQ"); //HAHA, get rickrolled b!!1!
+                    }
                 }
                 else if(creditsSubLayer && !playSubLayer && !optionsSubLayer && canBeClicked)
                 {

@@ -10,6 +10,8 @@ import flixel.system.FlxSound;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 
+using StringTools;
+
 class TitleState extends FlxState
 {
     var bg:FlxSprite;
@@ -184,8 +186,35 @@ class TitleState extends FlxState
         }, 1);
         new FlxTimer().start(0.8, function(tmr:FlxTimer)
         {
-            FlxG.switchState(new MainMenuState());
+            //Thank you KadeDev and its contributors for doing this
+            title.angle = 0;
+
+			var http = new haxe.Http("https://raw.githubusercontent.com/BTF2021/C4t/master/version.downloadMe");
+			var returnedData:Array<String> = [];
+
+			http.onData = function(data:String)
+			{
+				returnedData[0] = data.substring(0, data.indexOf(';'));                       // Get current version
+				returnedData[1] = data.substring(data.indexOf('-'), data.length);
+				if (!MainMenuState.gameVer.contains(returnedData[0].trim()))
+				{
+					trace('outdated version, stupid');
+					UpdateSubState.needVer = returnedData[0];
+					UpdateSubState.currChanges = returnedData[1];
+					openSubState(new UpdateSubState()); //FlxG.switchState(new UpdateSubState());
+				}
+				else
+				{
+					FlxG.switchState(new MainMenuState());
+				}
+			}
+
+			http.onError = function(error)
+			{
+				FlxG.switchState(new MainMenuState()); // Just go to the main menu
+			}
+
+				http.request();
         }, 1);   
-        //FlxG.sound.music.stop();
     }
 }
