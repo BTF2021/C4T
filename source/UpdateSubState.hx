@@ -34,24 +34,13 @@ class UpdateSubState extends FlxSubState
         var title:FlxText = new FlxText();
         title.size = 40;
         title.color = 0xFF000000;
-        title.text = '(Temp)Pokemon Birds Fight';
+        title.text = 'C4t';
         title.screenCenter(X);
         title.y = 5;
         add(title);
 
-		#if mobile
-        back = new FlxSprite(20, -200).loadGraphic(AssetPaths.Backbutton__png, false, 60, 40);
-        back.color = 0xFF9819;
-        add(back);
-        backText = new FlxText(40, -200);
-        backText.size = 40;
-        backText.color = 0xFF000000;
-        backText.text = "<";
-        add(backText);
-        #end
-
 		#if !mobile
-        var txt:FlxText = new FlxText(0, 0, FlxG.width,
+		var txt:FlxText = new FlxText(0, 0, FlxG.width,
 			"Hooray, a new version is out!"
 			+ "\nThe version " + needVer + " is available for download."
 			+ "\n\nWhat's new:\n\n"
@@ -66,12 +55,23 @@ class UpdateSubState extends FlxSubState
 			+ "\n\nWhat's new:\n\n"
 			+ currChanges
             + "And more"
-			+ "\n\nTouch anywhere to go download it or touch Back button to ignore this",
+			+ "\n\nTouch to go download it or Back to ignore this",
 			30);
 		#end
         txt.setFormat(30, FlxColor.BLACK, CENTER);
         txt.screenCenter();
         add(txt);
+
+		#if mobile
+        back = new FlxSprite(20, 40).loadGraphic(AssetPaths.Backbutton__png, false, 60, 40);
+        back.color = 0xFF9819;
+        add(back);
+        backText = new FlxText(40, 39);
+        backText.size = 40;
+        backText.color = 0xFF000000;
+        backText.text = "<";
+        add(backText);
+        #end
 	}
 
 	override function update(elapsed:Float)
@@ -89,7 +89,7 @@ class UpdateSubState extends FlxSubState
 		#else
 		for (touch in FlxG.touches.list)
 		{
-		    if (touch.justPressed)
+		    if (touch.justPressed && !touch.overlaps(back))
 		    {
 				fancyOpenURL("https://github.com/BTF2021/C4T");
 		    }
