@@ -24,6 +24,7 @@ class PauseSubState extends FlxSubState
     var marker:FlxSprite;
 
     var canBeClicked:Bool = false;
+    var n:Float;
 
     override public function create():Void
     {
@@ -33,7 +34,7 @@ class PauseSubState extends FlxSubState
 		bg.alpha = 0;
 		add(bg);
 
-        marker = new FlxSprite(500, 800).loadGraphic(AssetPaths.buttonMarker__png, true, 290, 150);
+        marker = new FlxSprite(500, Main.gameHeight).loadGraphic(AssetPaths.buttonMarker__png, true, 290, 150);
         add(marker);
 
         paused = new FlxText(545, -80);
@@ -43,33 +44,33 @@ class PauseSubState extends FlxSubState
         paused.screenCenter(X);
         add(paused);
 
-        resume = new FlxSprite(500, 800).loadGraphic(AssetPaths.button__png, true, 270, 130);
+        resume = new FlxSprite(500, Main.gameHeight + 130).loadGraphic(AssetPaths.button__png, true, 270, 130);
         resume.color = 0xFF9819;
         resume.screenCenter(X);
         add(resume);
-        resumeText = new FlxText(535, 800);
+        resumeText = new FlxText(535, Main.gameHeight + 130);
         resumeText.size = 40;
         resumeText.color = 0xFF000000;
         resumeText.text = "Resume";
         resumeText.screenCenter(X);
         add(resumeText);
 
-        restart = new FlxSprite(500, 800).loadGraphic(AssetPaths.button__png, true, 270, 130);
+        restart = new FlxSprite(500, Main.gameHeight + 130).loadGraphic(AssetPaths.button__png, true, 270, 130);
         restart.color = 0xFF9819;
         restart.screenCenter(X);
         add(restart);
-        restartText = new FlxText(515, 800);
+        restartText = new FlxText(515, Main.gameHeight + 130);
         restartText.size = 40;
         restartText.color = 0xFF000000;
         restartText.text = "Try again";
         restartText.screenCenter(X);
         add(restartText);
 
-        giveUp = new FlxSprite(500, 800).loadGraphic(AssetPaths.button__png, true, 270, 130);
+        giveUp = new FlxSprite(500, Main.gameHeight + 130).loadGraphic(AssetPaths.button__png, true, 270, 130);
         giveUp.color = 0xFF9819;
         giveUp.screenCenter(X);
         add(giveUp);
-        giveUpText = new FlxText(545, 800);
+        giveUpText = new FlxText(545, Main.gameHeight + 130);
         giveUpText.size = 40;
         giveUpText.color = 0xFF000000;
         giveUpText.text = "Give up";
@@ -85,23 +86,26 @@ class PauseSubState extends FlxSubState
                 FlxTween.angle(paused, paused.angle, -2, 2, {ease: FlxEase.quartInOut});
         }, 0);*/
 
+        if(FlxG.save.data.optionsAnimation) n=0.15;
+        else n=0.000000001;
+
         transitioning();
     }
 
     function transitioning()
     {
-        new FlxTimer().start(0.15, function(tmr:FlxTimer)
+        new FlxTimer().start(n, function(tmr:FlxTimer)
         {
-            FlxTween.tween(paused, {y: 20}, 0.05, {ease: FlxEase.quartInOut});
+            FlxTween.tween(paused, {y: 20}, n-0.1, {ease: FlxEase.quartInOut});
 
-            FlxTween.tween(resume, {y: 120}, 0.05, {ease: FlxEase.quartInOut});
-            FlxTween.tween(resumeText, {y: 165}, 0.05, {ease: FlxEase.quartInOut});
-            FlxTween.tween(restart, {y: 260}, 0.1, {ease: FlxEase.quartInOut});
-            FlxTween.tween(restartText, {y: 305}, 0.1, {ease: FlxEase.quartInOut});
-            FlxTween.tween(giveUp, {y: 400}, 0.15, {ease: FlxEase.quartInOut});
-            FlxTween.tween(giveUpText, {y: 445}, 0.15, {ease: FlxEase.quartInOut});
+            FlxTween.tween(resume, {y: 120}, n-0.1, {ease: FlxEase.quartInOut});
+            FlxTween.tween(resumeText, {y: 165}, n-0.1, {ease: FlxEase.quartInOut});
+            FlxTween.tween(restart, {y: 260}, n-0.05, {ease: FlxEase.quartInOut});
+            FlxTween.tween(restartText, {y: 305}, n-0.05, {ease: FlxEase.quartInOut});
+            FlxTween.tween(giveUp, {y: 400}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(giveUpText, {y: 445}, n, {ease: FlxEase.quartInOut});
 
-            new FlxTimer().start(0.15, function(tmr:FlxTimer) {canBeClicked = true;}, 1);
+            new FlxTimer().start(n, function(tmr:FlxTimer) {canBeClicked = true;}, 1);
         }, 1);
     }
 
@@ -115,19 +119,19 @@ class PauseSubState extends FlxSubState
             marker.y = resume.y - 10;
             if(FlxG.mouse.justPressed)
             {
-                new FlxTimer().start(0.15, function(tmr:FlxTimer) 
+                new FlxTimer().start(n, function(tmr:FlxTimer) 
                 {
                     marker.kill();
-                    FlxTween.tween(paused, {y: -80}, 0.05, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(paused, {y: -80}, n-0.1, {ease: FlxEase.quartInOut});
 
-                    FlxTween.tween(resume, {y: 800}, 0.15, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(resumeText, {y: 800}, 0.15, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(restart, {y: 800}, 0.1, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(restartText, {y: 800}, 0.1, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(giveUp, {y: 800}, 0.05, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(giveUpText, {y: 800}, 0.05, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(resume, {y: Main.gameHeight + 130}, n, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(resumeText, {y: Main.gameHeight + 130}, n, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(restart, {y: Main.gameHeight + 130}, n-0.05, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(restartText, {y: Main.gameHeight + 130}, n-0.05, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(giveUp, {y: Main.gameHeight + 130}, n-0.1, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(giveUpText, {y: Main.gameHeight + 130}, n-0.1, {ease: FlxEase.quartInOut});
 
-                    new FlxTimer().start(0.15, function(tmr:FlxTimer) {close();}, 1);
+                    new FlxTimer().start(n, function(tmr:FlxTimer) {close();}, 1);
                 }, 1);
             }
         }
@@ -157,12 +161,12 @@ class PauseSubState extends FlxSubState
                     marker.kill();
                     FlxTween.tween(paused, {y: -80}, 0.05, {ease: FlxEase.quartInOut});
 
-                    FlxTween.tween(resume, {y: 800}, 0.15, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(resumeText, {y: 800}, 0.15, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(restart, {y: 800}, 0.1, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(restartText, {y: 800}, 0.1, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(giveUp, {y: 800}, 0.05, {ease: FlxEase.quartInOut});
-                    FlxTween.tween(giveUpText, {y: 800}, 0.05, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(resume, {y: Main.gameHeight + 130}, 0.15, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(resumeText, {y: Main.gameHeight + 130}, 0.15, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(restart, {y: Main.gameHeight + 130}, 0.1, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(restartText, {y: Main.gameHeight + 130}, 0.1, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(giveUp, {y: Main.gameHeight + 130}, 0.05, {ease: FlxEase.quartInOut});
+                    FlxTween.tween(giveUpText, {y: Main.gameHeight + 130}, 0.05, {ease: FlxEase.quartInOut});
 
                     new FlxTimer().start(0.15, function(tmr:FlxTimer) {close();}, 1);
                 }, 1);
@@ -174,11 +178,7 @@ class PauseSubState extends FlxSubState
                 marker.y = restart.y - 10;
                 if(touch.justPressed)
                 {
-                #if !mobile
                 FlxG.switchState(new PlayState());
-                #else
-                FlxG.switchState(new PlayStateMobile());
-                #end
                 }
             }
             if(touch.overlaps(giveUp) && canBeClicked)
