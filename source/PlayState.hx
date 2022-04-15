@@ -11,7 +11,9 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.system.FlxSound;
 import flixel.system.ui.FlxSoundTray;
+#if !mobile
 import  flixel.input.keyboard.FlxKey;
+#end
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
@@ -34,6 +36,11 @@ class PlayState extends FlxState
 	var bolt7:FlxSprite;
 	var bolt8:FlxSprite;
 	var bolt9:FlxSprite;
+	#if mobile
+	var bolt10:FlxSprite;
+	var bolt11:FlxSprite;
+	var bolt12:FlxSprite;
+	#end
 
 	var timr:Float = 0;
 	var time:FlxText;
@@ -52,6 +59,12 @@ class PlayState extends FlxState
 	var IFrame:Bool;
     var isAlive:Bool = true;
 
+	#if mobile
+	var back:FlxSprite;
+    var backText:FlxText;
+
+	var dummy:Int = 0;                                                  //Dummy Float for No tp mode
+	#end
 
 	override public function create()
 	{
@@ -119,16 +132,39 @@ class PlayState extends FlxState
 		bolt9.y = 0;
 		if (FlxG.save.data.sistemInvert) bolt9.flipY = true;
 		add(bolt9);
+		#if mobile
+		bolt10 = new FlxSprite().loadGraphic(AssetPaths.bolt__png, true, 51, 199);
+		bolt10.alpha = 0;
+		bolt10.y = 0;
+		if (FlxG.save.data.sistemInvert) bolt10.flipY = true;
+		add(bolt10);
+		bolt11 = new FlxSprite().loadGraphic(AssetPaths.bolt__png, true, 51, 199);
+		bolt11.alpha = 0;
+		bolt11.y = 0;
+		if (FlxG.save.data.sistemInvert) bolt11.flipY = true;
+		add(bolt11);
+		bolt12 = new FlxSprite().loadGraphic(AssetPaths.bolt__png, true, 51, 199);
+		bolt12.alpha = 0;
+		bolt12.y = 0;
+		if (FlxG.save.data.sistemInvert) bolt12.flipY = true;
+		add(bolt12);
+		#end
 
-        time = new FlxText(20, 40);
+		#if !mobile
+        time = new FlxText(20, 20);
 		time.size = 20;
 		add(time);
+		#else
+		time = new FlxText(20, 80);
+		time.size = 20;
+		add(time);
+		#end
 
-		countdown = new FlxText(20, 660);
+		countdown = new FlxText(20, Main.gameHeight - 60);
 		countdown.size = 20;
 		add(countdown);
 
-		Halth = new FlxText(20, 680);
+		Halth = new FlxText(20, Main.gameHeight - 40);
 		Halth.size = 20;
 		add(Halth);
 
@@ -139,10 +175,12 @@ class PlayState extends FlxState
 
 		refer = FlxG.sound.load(AssetPaths.Pressure__ogg);
 		refer.volume = 0.15;
-
+        #if !mobile
 		FlxG.mouse.visible = false;
+		#end
 		IFrame = false;
-		new FlxTimer().start(0.05, GameTimer, 0);
+		if (FlxG.save.data.optionsZecimal) new FlxTimer().start(0.005, GameTimer, 0);
+		else new FlxTimer().start(0.5, GameTimer, 0);
 
 		switch(FlxG.save.data.sistemDifficulty)
 		{
@@ -159,6 +197,17 @@ class PlayState extends FlxState
 				helth = 1;
 		}
 
+		#if mobile
+		back = new FlxSprite(20, 40).loadGraphic(AssetPaths.Backbutton__png, false, 60, 40);
+        back.color = 0xFF9819;
+        add(back);
+        backText = new FlxText(40, 39);
+        backText.size = 40;
+        backText.color = 0xFF000000;
+        backText.text = "<";
+        add(backText);
+		#end
+
 		begin();
 	}
 
@@ -172,44 +221,51 @@ class PlayState extends FlxState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		if (begen) time.text = 'Timer: ' + Std.string(timr);
-		if (begen && helth >=2) Halth.text = 'Health: ' + Std.string(helth);
-		else if (begen && helth == 1) Halth.text = "Health: You're the last one. Complete the mission";
-		if (begen && FlxG.save.data.sistemDifficulty != 4) countdown.text = 'Dodge: ' + (dodge ? "Ready (Press Left Click)" : "Not ready");
-		else if (begen && FlxG.save.data.sistemDifficulty == 4) countdown.text = "Dodge: unable to can :)";
+		if (begen)
+		{
+			time.text = 'Timer: ' + Std.string(timr);
+			Halth.text = 'Health: ' + Std.string(helth);
+			if(helth == 1 && FlxG.save.data.optionsEaster) Halth.text = "Health: You're the last one. Complete the mission";
+			if(FlxG.save.data.sistemDifficulty != 4) countdown.text = 'Dodge: ' + (dodge ? "Ready (Press Left Click)" : "Not ready");
+			else if (FlxG.save.data.sistemDifficulty == 4)
+			{
+				if(!FlxG.save.data.optionsEaster) countdown.text = 'Dodge is disabled';
+				else countdown.text = "Dodge: unable to can :)";
+			}
+		}
 
-		boltGen.x = FlxG.random.int(0, 1260);
+		boltGen.x = FlxG.random.int(0, Main.gameWidth);
 		if (!FlxG.save.data.sistemInvert)                                                             //For not thinking more smarter, you get two
 		{
-		if(FlxG.random.bool(5) && bolt.y >=800)
+		if(FlxG.random.bool(5) && bolt.y >=Main.gameHeight + 199)
 		{
 			bolt.revive();
 			FlxTween.tween(bolt, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
 			bolt.x = boltGen.x;
 			bolt.y = 0;
 		}
-		if(FlxG.random.bool(5) && bolt1.y >=800)
+		if(FlxG.random.bool(5) && bolt1.y >=Main.gameHeight + 199)
 		{
 			bolt1.revive();
 			FlxTween.tween(bolt1, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
 			bolt1.x = boltGen.x;
 			bolt1.y = 0;
 		}
-		if(FlxG.random.bool(5) && bolt2.y >=800)
+		if(FlxG.random.bool(5) && bolt2.y >=Main.gameHeight + 199)
 		{
 			bolt2.revive();
 			FlxTween.tween(bolt2, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
 			bolt2.x = boltGen.x;
 			bolt2.y = 0;
 		}
-		if(FlxG.random.bool(5) && bolt3.y >=800)
+		if(FlxG.random.bool(5) && bolt3.y >=Main.gameHeight + 199)
 		{
 			bolt3.revive();
 			FlxTween.tween(bolt3, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
 			bolt3.x = boltGen.x;
 			bolt3.y = 0;
 		}
-		if(FlxG.random.bool(5) && bolt4.y >=800)
+		if(FlxG.random.bool(5) && bolt4.y >=Main.gameHeight + 199)
 		{
 		    if (timr >= 10 && !FlxG.save.data.sistemFullPow)
 		    {
@@ -226,7 +282,7 @@ class PlayState extends FlxState
 			bolt4.y = 0;
 		    }
 		}
-		if(FlxG.random.bool(5) && bolt5.y >=800)
+		if(FlxG.random.bool(5) && bolt5.y >=Main.gameHeight + 199)
 		{
 			if (timr >= 10 && !FlxG.save.data.sistemFullPow)
 			{
@@ -243,7 +299,7 @@ class PlayState extends FlxState
 			    bolt5.y = 0;
 			}
 		}
-		if(FlxG.random.bool(5) && bolt6.y >=800)
+		if(FlxG.random.bool(5) && bolt6.y >=Main.gameHeight + 199)
 		{
 			if (timr >= 10 && !FlxG.save.data.sistemFullPow)
 			{
@@ -260,7 +316,7 @@ class PlayState extends FlxState
 				bolt6.y = 0;
 			}
 		}
-		if(FlxG.random.bool(5) && bolt7.y >=800)
+		if(FlxG.random.bool(5) && bolt7.y >=Main.gameHeight + 199)
 		{
 			if (timr >= 20 && !FlxG.save.data.sistemFullPow)
 			{
@@ -277,7 +333,7 @@ class PlayState extends FlxState
 				bolt7.y = 0;
 			}
 		}
-		if(FlxG.random.bool(5) && bolt8.y >=800)
+		if(FlxG.random.bool(5) && bolt8.y >=Main.gameHeight + 199)
 		{
 			if (timr >= 20 && !FlxG.save.data.sistemFullPow)
 			{
@@ -294,7 +350,7 @@ class PlayState extends FlxState
 				bolt8.y = 0;
 			}
 		}
-		if(FlxG.random.bool(5) && bolt9.y >=800)
+		if(FlxG.random.bool(5) && bolt9.y >=Main.gameHeight + 199)
 		{
 			if (timr >= 20 && !FlxG.save.data.sistemFullPow)
 			{
@@ -311,40 +367,41 @@ class PlayState extends FlxState
 				bolt9.y = 0;
 			}
 		}
+
 	    }
 
 
 		else if (FlxG.save.data.sistemInvert)                                                                      //The second one
 		{
-		if(FlxG.random.bool(5) && bolt.y <=-200)
+		if(FlxG.random.bool(5) && bolt.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				bolt.revive();
 				FlxTween.tween(bolt, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
 				bolt.x = boltGen.x;
 				bolt.y = 720;
 			}
-			if(FlxG.random.bool(5) && bolt1.y <=-200)
+			if(FlxG.random.bool(5) && bolt1.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				bolt1.revive();
 				FlxTween.tween(bolt1, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
 				bolt1.x = boltGen.x;
 				bolt1.y = 720;
 			}
-			if(FlxG.random.bool(5) && bolt2.y <=-200)
+			if(FlxG.random.bool(5) && bolt2.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				bolt2.revive();
 				FlxTween.tween(bolt2, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
 				bolt2.x = boltGen.x;
 				bolt2.y = 720;
 			}
-			if(FlxG.random.bool(5) && bolt3.y <=-200)
+			if(FlxG.random.bool(5) && bolt3.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				bolt3.revive();
 				FlxTween.tween(bolt3, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
 				bolt3.x = boltGen.x;
 				bolt3.y = 720;
 			}
-			if(FlxG.random.bool(5) && bolt4.y <=-200)
+			if(FlxG.random.bool(5) && bolt4.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				if (timr >= 10 && !FlxG.save.data.sistemFullPow)
 				{
@@ -361,7 +418,7 @@ class PlayState extends FlxState
 				bolt4.y = 720;
 				}
 			}
-			if(FlxG.random.bool(5) && bolt5.y <=-200)
+			if(FlxG.random.bool(5) && bolt5.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				if (timr >= 10 && !FlxG.save.data.sistemFullPow)
 				{
@@ -378,7 +435,7 @@ class PlayState extends FlxState
 					bolt5.y = 720;
 				}
 			}
-			if(FlxG.random.bool(5) && bolt6.y <=-200)
+			if(FlxG.random.bool(5) && bolt6.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				if (timr >= 10 && !FlxG.save.data.sistemFullPow)
 				{
@@ -395,7 +452,7 @@ class PlayState extends FlxState
 					bolt6.y = 720;
 				}
 				}
-			if(FlxG.random.bool(5) && bolt7.y <=-200)
+			if(FlxG.random.bool(5) && bolt7.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				if (timr >= 20 && !FlxG.save.data.sistemFullPow)
 				{
@@ -412,7 +469,7 @@ class PlayState extends FlxState
 					bolt7.y = 720;
 				}
 			}
-			if(FlxG.random.bool(5) && bolt8.y <=-200)
+			if(FlxG.random.bool(5) && bolt8.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				if (timr >= 20 && !FlxG.save.data.sistemFullPow)
 				{
@@ -429,7 +486,7 @@ class PlayState extends FlxState
 					bolt8.y = 720;
 				}
 			}
-			if(FlxG.random.bool(5) && bolt9.y <=-200)
+			if(FlxG.random.bool(5) && bolt9.y <=Main.gameHeight - Main.gameHeight - 199)
 			{
 				if (timr >= 20 && !FlxG.save.data.sistemFullPow)
 				{
@@ -451,16 +508,121 @@ class PlayState extends FlxState
 
 		if(begen && !FlxG.save.data.sistemMaso)
 		{
+			#if !mobile
 		    cat.x = FlxG.mouse.x - 52;
 		    cat.y = FlxG.mouse.y - 56;
+			#else
+			for (touch in FlxG.touches.list)
+			{
+                if(!touch.overlaps(back))
+				{
+                    cat.x = touch.x - 52;
+		            cat.y = touch.y - 56;
+				}
+			}
+			#end	
 		}
 		else if (begen && FlxG.save.data.sistemMaso)
 		{
+			#if !mobile
 			if(FlxG.keys.pressed.UP && cat.y > -56) cat.y = cat.y - 6;
 			if(FlxG.keys.pressed.DOWN && cat.y < 670) cat.y = cat.y + 6;
 			if(FlxG.keys.pressed.LEFT && cat.x > -56) cat.x = cat.x - 6;
 			if(FlxG.keys.pressed.RIGHT && cat.x < 1230) cat.x = cat.x + 6;
+			#else
+			for (touch in FlxG.touches.list)
+			{
+			    if(!touch.overlaps(back))
+			    {
+				    if (cat.x < touch.x - 152 || cat.x > touch.x + 152) dummy=0;         //The dummy int is not used for the mechanic, just for filling
+				    else cat.x = touch.x - 52;
+				    if (cat.y < touch.y - 156 || cat.y > touch.y + 156) dummy=0;
+				    else cat.y = touch.y - 56;
+			    }
+			}
+			#end
 		}
+
+		#if !mobile
+		if (!FlxG.save.data.sistemMaso)
+		{
+			if (FlxG.mouse.justPressed)
+			{
+				#if debug
+				if (FlxG.mouse.justPressed) FlxG.mouse.visible = !FlxG.mouse.visible;
+				#end
+				if (dodge && isAlive && !IFrame && begen && FlxG.save.data.sistemDifficulty != 4)
+				{
+					cat.alpha = 0.3;
+					IFrame = true;
+					dodge = false;
+					new FlxTimer().start(0.15, ITimer, 1);
+					new FlxTimer().start(n, DodgeCountdown, 1);
+				}
+				else if (!begen)
+				{
+					ded.text = '';
+					begen = true;
+				}
+			}
+		}
+		else if (FlxG.save.data.sistemMaso)
+		{
+			if (FlxG.keys.justPressed.CONTROL)
+			{
+				if (dodge && isAlive && !IFrame && begen && FlxG.save.data.sistemDifficulty != 4)
+				{
+					cat.alpha = 0.3;
+					IFrame = true;
+					dodge = false;
+					new FlxTimer().start(0.15, ITimer, 1);
+					new FlxTimer().start(n, DodgeCountdown, 1);
+				}
+					else if (!begen)
+				{
+					ded.text = '';
+					begen = true;
+				}
+			}
+		}
+		if (FlxG.keys.justPressed.ESCAPE && begen)
+		{
+			begen = false;
+			FlxG.mouse.visible = true;
+			openSubState(new PauseSubState());
+			//FlxG.switchState(new PauseSubState());
+		}
+		#else
+		for (touch in FlxG.touches.list)
+		{
+			if (touch.justReleased)
+			{
+				//#if debug
+				//if (FlxG.mouse.justPressed) FlxG.mouse.visible = !FlxG.mouse.visible;
+				//#end
+				if (dodge && isAlive && !IFrame && begen && FlxG.save.data.sistemDifficulty != 4)
+				{
+					cat.alpha = 0.3;
+					IFrame = true;
+					dodge = false;
+					new FlxTimer().start(0.15, ITimer, 1);
+					new FlxTimer().start(n, DodgeCountdown, 1);
+				}
+				else if (!begen)
+				{
+					ded.text = '';
+					begen = true;
+				}
+			}
+			if (touch.overlaps(back) && touch.justReleased)
+			{
+			    begen = false;
+			    //FlxG.mouse.visible = true;
+				openSubState(new PauseSubState());
+				//FlxG.switchState(new PauseSubState());
+			}
+	    }
+		#end
 
 		if(!IFrame && begen && isAlive)
 		{
@@ -470,7 +632,7 @@ class PlayState extends FlxState
 				cat.color = 0xfa1d1d;
                 new FlxTimer().start(0.5, ITimer, 1);
 			    helth --;
-				//if (helth == 1) refer.play(true);
+				if (helth == 1 && FlxG.save.data.optionsEaster) refer.play(true);
 		    }
 		}
 
@@ -482,9 +644,14 @@ class PlayState extends FlxState
 
 		if(!isAlive && begen)
 		{
+			#if !mobile
             ded.text = 'You died. Press left click or ctrl to play again';
-			ded.screenCenter(X);
+			#else
+			ded.text = 'You died. Touch the screen to play again';
+			#end
+			ded.screenCenter();
             
+			#if !mobile
 			if(FlxG.mouse.justPressed || FlxG.keys.justPressed.CONTROL)
 				{
 					cat.revive();
@@ -506,28 +673,28 @@ class PlayState extends FlxState
 					if (!FlxG.save.data.sistemInvert)
 					{
                         bolt.y = 0;
-					    bolt1.y = 800;
-					    bolt2.y = 800;
-					    bolt3.y = 800;
-					    bolt4.y = 800;
-					    bolt5.y = 800;
-					    bolt6.y = 800;
-					    bolt7.y = 800;
-					    bolt8.y = 800;
-					    bolt9.y = 800;
+					    bolt1.y = Main.gameHeight + 199;
+					    bolt2.y = Main.gameHeight + 199;
+					    bolt3.y = Main.gameHeight + 199;
+					    bolt4.y = Main.gameHeight + 199;
+					    bolt5.y = Main.gameHeight + 199;
+					    bolt6.y = Main.gameHeight + 199;
+					    bolt7.y = Main.gameHeight + 199;
+					    bolt8.y = Main.gameHeight + 199;
+					    bolt9.y = Main.gameHeight + 199;
 					}
 					else if(FlxG.save.data.sistemInvert)
 					{
-						bolt.y = 720;
-					    bolt1.y = -200;
-					    bolt2.y = -200;
-					    bolt3.y = -200;
-					    bolt4.y = -200;
-					    bolt5.y = -200;
-					    bolt6.y = -200;
-					    bolt7.y = -200;
-					    bolt8.y = -200;
-					    bolt9.y = -200;
+						bolt.y = Main.gameHeight;
+					    bolt1.y = Main.gameHeight - Main.gameHeight - 199;
+					    bolt2.y = Main.gameHeight - Main.gameHeight - 199;
+					    bolt3.y = Main.gameHeight - Main.gameHeight - 199;
+					    bolt4.y = Main.gameHeight - Main.gameHeight - 199;
+					    bolt5.y = Main.gameHeight - Main.gameHeight - 199;
+					    bolt6.y = Main.gameHeight - Main.gameHeight - 199;
+					    bolt7.y = Main.gameHeight - Main.gameHeight - 199;
+					    bolt8.y = Main.gameHeight - Main.gameHeight - 199;
+					    bolt9.y = Main.gameHeight - Main.gameHeight - 199;
 					}
 
 					bolt1.kill();
@@ -553,6 +720,91 @@ class PlayState extends FlxState
 					ded.text = '';
 					dodge = true;
 				}
+			#else
+			for (touch in FlxG.touches.list)
+				{
+					if(touch.justPressed) //|| FlxG.keys.justPressed.CONTROL)
+					{
+						cat.revive();
+						cat.screenCenter();
+						if (!FlxG.save.data.sistemInvert) cat.y = 620;
+						else cat.y = 100;
+						timr = 0;
+						switch(FlxG.save.data.sistemDifficulty)
+						{
+							case 1:
+								helth = 7;
+							case 2:
+								helth = 5;
+							case 3:
+								helth = 3;
+							case 4:
+								helth = 1;
+						}
+						if (!FlxG.save.data.sistemInvert)
+						{
+							bolt.y = 0;
+							bolt1.y = Main.gameHeight + 199;
+							bolt2.y = Main.gameHeight + 199;
+							bolt3.y = Main.gameHeight + 199;
+							bolt4.y = Main.gameHeight + 199;
+							bolt5.y = Main.gameHeight + 199;
+							bolt6.y = Main.gameHeight + 199;
+							bolt7.y = Main.gameHeight + 199;
+							bolt8.y = Main.gameHeight + 199;
+							bolt9.y = Main.gameHeight + 199;
+							bolt10.y = Main.gameHeight + 199;
+							bolt11.y = Main.gameHeight + 199;
+							bolt12.y = Main.gameHeight + 199;
+						}
+						else if(FlxG.save.data.sistemInvert)
+						{
+							bolt.y = Main.gameHeight;
+							bolt1.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt2.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt3.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt4.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt5.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt6.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt7.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt8.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt9.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt10.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt11.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt12.y = Main.gameHeight - Main.gameHeight - 199;
+						}
+	
+						bolt1.kill();
+						bolt2.kill();
+						bolt3.kill();
+						bolt4.kill();
+						bolt5.kill();
+						bolt6.kill();
+						bolt7.kill();
+						bolt8.kill();
+						bolt9.kill();
+						bolt10.kill();
+						bolt11.kill();
+						bolt12.kill();
+	
+						bolt1.alpha = 0;
+						bolt2.alpha = 0;
+						bolt3.alpha = 0;
+						bolt4.alpha = 0;
+						bolt5.alpha = 0;
+						bolt6.alpha = 0;
+						bolt7.alpha = 0;
+						bolt8.alpha = 0;
+						bolt9.alpha = 0;
+						bolt10.alpha = 0;
+						bolt11.alpha = 0;
+						bolt12.alpha = 0;
+						isAlive = true;
+						ded.text = '';
+						dodge = true;
+					}
+				}
+			#end
 		}
 
 		if(isAlive && begen)
@@ -572,6 +824,11 @@ class PlayState extends FlxState
 		            bolt7.y = bolt7.y + 7;
 		            bolt8.y = bolt8.y + 7;
 		            bolt9.y = bolt9.y + 7;
+					#if mobile
+					bolt10.y = bolt10.y + 7;
+		            bolt11.y = bolt11.y + 7;
+		            bolt12.y = bolt12.y + 7;
+					#end
 				case 2:
 				    bolt.y = bolt.y + 9;
 		            bolt1.y = bolt1.y + 9;
@@ -583,6 +840,11 @@ class PlayState extends FlxState
 		            bolt7.y = bolt7.y + 9;
 		            bolt8.y = bolt8.y + 9;
 		            bolt9.y = bolt9.y + 9;
+					#if mobile
+					bolt10.y = bolt10.y + 9;
+		            bolt11.y = bolt11.y + 9;
+		            bolt12.y = bolt12.y + 9;
+					#end
 				case 3:
 					bolt.y = bolt.y + 10;
 		            bolt1.y = bolt1.y + 10;
@@ -594,6 +856,11 @@ class PlayState extends FlxState
 		            bolt7.y = bolt7.y + 10;
 		            bolt8.y = bolt8.y + 10;
 		            bolt9.y = bolt9.y + 10;
+					#if mobile
+					bolt10.y = bolt10.y + 10;
+		            bolt10.y = bolt11.y + 10;
+		            bolt10.y = bolt12.y + 10;
+					#end
 				case 4:
 					bolt.y = bolt.y + 12;
 		            bolt1.y = bolt1.y + 12;
@@ -605,6 +872,11 @@ class PlayState extends FlxState
 		            bolt7.y = bolt7.y + 12;
 		            bolt8.y = bolt8.y + 12;
 		            bolt9.y = bolt9.y + 12;
+					#if mobile
+					bolt10.y = bolt10.y + 12;
+		            bolt11.y = bolt11.y + 12;
+		            bolt12.y = bolt12.y + 12;
+					#end
 			    }
 		    }
 			else if (FlxG.save.data.sistemInvert)
@@ -622,6 +894,11 @@ class PlayState extends FlxState
 		            bolt7.y = bolt7.y - 7;
 		            bolt8.y = bolt8.y - 7;
 		            bolt9.y = bolt9.y - 7;
+					#if mobile
+					bolt10.y = bolt10.y - 7;
+		            bolt11.y = bolt11.y - 7;
+		            bolt12.y = bolt12.y - 7;
+					#end
 				case 2:
 				    bolt.y = bolt.y - 9;
 		            bolt1.y = bolt1.y - 9;
@@ -633,6 +910,11 @@ class PlayState extends FlxState
 		            bolt7.y = bolt7.y - 9;
 		            bolt8.y = bolt8.y - 9;
 		            bolt9.y = bolt9.y - 9;
+					#if mobile
+					bolt10.y = bolt10.y - 9;
+		            bolt11.y = bolt11.y - 9;
+		            bolt12.y = bolt12.y - 9;
+					#end
 				case 3:
 					bolt.y = bolt.y - 10;
 		            bolt1.y = bolt1.y - 10;
@@ -644,6 +926,11 @@ class PlayState extends FlxState
 		            bolt7.y = bolt7.y - 10;
 		            bolt8.y = bolt8.y - 10;
 		            bolt9.y = bolt9.y - 10;
+					#if mobile
+					bolt10.y = bolt10.y - 10;
+		            bolt10.y = bolt11.y - 10;
+		            bolt10.y = bolt12.y - 10;
+					#end
 				case 4:
 					bolt.y = bolt.y - 12;
 		            bolt1.y = bolt1.y - 12;
@@ -655,84 +942,52 @@ class PlayState extends FlxState
 		            bolt7.y = bolt7.y - 12;
 		            bolt8.y = bolt8.y - 12;
 		            bolt9.y = bolt9.y - 12;
+					#if mobile
+					bolt10.y = bolt10.y - 12;
+		            bolt11.y = bolt11.y - 12;
+		            bolt12.y = bolt12.y - 12;
+					#end
 			    }
 			}
 		}
 
-		if (!FlxG.save.data.sistemMaso)
-		{
-		    if (FlxG.mouse.justPressed)
-		    {
-			    #if debug
-		        if (FlxG.mouse.justPressed) FlxG.mouse.visible = !FlxG.mouse.visible;
-		        #end
-                if (dodge && isAlive && !IFrame && begen && FlxG.save.data.sistemDifficulty != 4)
-			    {
-				    cat.alpha = 0.3;
-				    IFrame = true;
-				    dodge = false;
-			        new FlxTimer().start(0.15, ITimer, 1);
-                    new FlxTimer().start(n, DodgeCountdown, 1);
-			    }
-			    else if (!begen)
-			    {
-				    ded.text = '';
-			        begen = true;
-			    }
-		    }
-		}
-		else if (FlxG.save.data.sistemMaso)
-	    {
-			if (FlxG.keys.justPressed.CONTROL)
-			{
-				if (dodge && isAlive && !IFrame && begen && FlxG.save.data.sistemDifficulty != 4)
-				{
-					cat.alpha = 0.3;
-					IFrame = true;
-					dodge = false;
-					new FlxTimer().start(0.15, ITimer, 1);
-					new FlxTimer().start(n, DodgeCountdown, 1);
-				}
-					else if (!begen)
-				{
-					ded.text = '';
-					begen = true;
-				}
-			}
-		}
-		if (FlxG.keys.justPressed.ESCAPE && begen)
-		{
-			begen = false;
-			FlxG.mouse.visible = true;
-	        openSubState(new PauseSubState());
-			//FlxG.switchState(new PauseSubState());
-		}
+		
 
 		if (!FlxG.save.data.sistemInvert)
 		{
-		    if(bolt.y >= 800) {bolt.kill(); bolt.alpha = 0;}
-		    if(bolt1.y >= 800) {bolt1.kill(); bolt1.alpha = 0;}
-		    if(bolt2.y >= 800) {bolt2.kill(); bolt2.alpha = 0;}
-		    if(bolt3.y >= 800) {bolt3.kill(); bolt3.alpha = 0;}
-		    if(bolt4.y >= 800) {bolt4.kill(); bolt4.alpha = 0;}
-		    if(bolt5.y >= 800) {bolt5.kill(); bolt5.alpha = 0;}
-		    if(bolt6.y >= 800) {bolt6.kill(); bolt6.alpha = 0;}
-		    if(bolt7.y >= 800) {bolt7.kill(); bolt7.alpha = 0;}
-		    if(bolt8.y >= 800) {bolt8.kill(); bolt8.alpha = 0;}
-		    if(bolt9.y >= 800) {bolt9.kill(); bolt9.alpha = 0;}
+		    if(bolt.y >= Main.gameHeight + 199) {bolt.kill(); bolt.alpha = 0;}
+		    if(bolt1.y >= Main.gameHeight + 199) {bolt1.kill(); bolt1.alpha = 0;}
+		    if(bolt2.y >= Main.gameHeight + 199) {bolt2.kill(); bolt2.alpha = 0;}
+		    if(bolt3.y >= Main.gameHeight + 199) {bolt3.kill(); bolt3.alpha = 0;}
+		    if(bolt4.y >= Main.gameHeight + 199) {bolt4.kill(); bolt4.alpha = 0;}
+		    if(bolt5.y >= Main.gameHeight + 199) {bolt5.kill(); bolt5.alpha = 0;}
+		    if(bolt6.y >= Main.gameHeight + 199) {bolt6.kill(); bolt6.alpha = 0;}
+		    if(bolt7.y >= Main.gameHeight + 199) {bolt7.kill(); bolt7.alpha = 0;}
+		    if(bolt8.y >= Main.gameHeight + 199) {bolt8.kill(); bolt8.alpha = 0;}
+		    if(bolt9.y >= Main.gameHeight + 199) {bolt9.kill(); bolt9.alpha = 0;}
+			#if mobile
+			if(bolt10.y >= Main.gameHeight + 199) {bolt10.kill(); bolt10.alpha = 0;}
+			if(bolt11.y >= Main.gameHeight + 199) {bolt11.kill(); bolt11.alpha = 0;}
+			if(bolt12.y >= Main.gameHeight + 199) {bolt12.kill(); bolt12.alpha = 0;}
+			#end
 		}
 		else if (FlxG.save.data.sistemInvert)
 		{
-            if(bolt.y <=-200) {bolt.kill(); bolt.alpha = 0;}
-		    if(bolt1.y <=-200) {bolt1.kill(); bolt1.alpha = 0;}
-		    if(bolt2.y <=-200) {bolt2.kill(); bolt2.alpha = 0;}
-		    if(bolt3.y <=-200) {bolt3.kill(); bolt3.alpha = 0;}
-		    if(bolt4.y <=-200) {bolt4.kill(); bolt4.alpha = 0;}
-		    if(bolt5.y <=-200) {bolt5.kill(); bolt5.alpha = 0;}
-		    if(bolt6.y <=-200) {bolt6.kill(); bolt6.alpha = 0;}
-		    if(bolt7.y <=-200) {bolt7.kill(); bolt7.alpha = 0;}
-		    if(bolt8.y <=-200) {bolt8.kill(); bolt8.alpha = 0;}
-		    if(bolt9.y <=-200) {bolt9.kill(); bolt9.alpha = 0;}
+            if(bolt.y <= Main.gameHeight - Main.gameHeight - 199) {bolt.kill(); bolt.alpha = 0;}
+		    if(bolt1.y <= Main.gameHeight - Main.gameHeight - 199) {bolt1.kill(); bolt1.alpha = 0;}
+		    if(bolt2.y <= Main.gameHeight - Main.gameHeight - 199) {bolt2.kill(); bolt2.alpha = 0;}
+		    if(bolt3.y <= Main.gameHeight - Main.gameHeight - 199) {bolt3.kill(); bolt3.alpha = 0;}
+		    if(bolt4.y <= Main.gameHeight - Main.gameHeight - 199) {bolt4.kill(); bolt4.alpha = 0;}
+		    if(bolt5.y <= Main.gameHeight - Main.gameHeight - 199) {bolt5.kill(); bolt5.alpha = 0;}
+		    if(bolt6.y <= Main.gameHeight - Main.gameHeight - 199) {bolt6.kill(); bolt6.alpha = 0;}
+		    if(bolt7.y <= Main.gameHeight - Main.gameHeight - 199) {bolt7.kill(); bolt7.alpha = 0;}
+		    if(bolt8.y <= Main.gameHeight - Main.gameHeight - 199) {bolt8.kill(); bolt8.alpha = 0;}
+		    if(bolt9.y <= Main.gameHeight - Main.gameHeight - 199) {bolt9.kill(); bolt9.alpha = 0;}
+			#if mobile
+			if(bolt10.y <= Main.gameHeight - Main.gameHeight - 199) {bolt10.kill(); bolt10.alpha = 0;}
+			if(bolt11.y <= Main.gameHeight - Main.gameHeight - 199) {bolt11.kill(); bolt11.alpha = 0;}
+			if(bolt12.y <= Main.gameHeight - Main.gameHeight - 199) {bolt12.kill(); bolt12.alpha = 0;}
+			#end
 		}
 
 		/*
@@ -744,7 +999,13 @@ class PlayState extends FlxState
 	}
 	function GameTimer(timer:FlxTimer):Void
 	{
-		if(isAlive && begen) timr = timr + 0.1;
+		if (isAlive && begen && FlxG.save.data.optionsZecimal)
+		{
+			timr = timr + 0.01;
+			var a:Float= (timr / 0.01) % 100;
+			if(a/60 >= 1)timr = timr + 0.40;   //Finally, an accurate stopwatch
+		}
+		else if (isAlive && begen && !FlxG.save.data.optionsZecimal) timr ++;
 	}
 	function ITimer(timer:FlxTimer):Void
 	{
