@@ -33,21 +33,21 @@ class TitleState extends FlxState
         bg.screenCenter();
         add(bg);
 
-        me = new FlxText(0, 760);
+        me = new FlxText(0, Main.gameHeight);
         me.size = 40;
         me.color = 0xFF000000;
         me.text = 'BTF Presents...';
         me.screenCenter(X);
         add(me);
 
-        title = new FlxText(0, -80);
+        title = new FlxText(0, -50);
         title.size = 40;
         title.color = 0xFF000000;
-        title.text = '(Temp)Pokemon Birds Fight';
+        title.text = 'C4t';
         title.screenCenter(X);
         add(title);
 
-        press = new FlxText(0, 760);
+        press = new FlxText(0, Main.gameHeight);
         press.size = 40;
         press.color = 0xFF000000;
         #if !mobile
@@ -104,7 +104,10 @@ class TitleState extends FlxState
             FlxG.sound.playMusic(AssetPaths.TitleTest__ogg, 1, true);
         }
 
-        startIntro();
+        DefaultData.initSave();
+
+        if(!FlxG.save.data.optionsSkipTitle)startIntro();
+        else FlxG.switchState(new MainMenuState());
 
     }
     function startIntro()
@@ -124,20 +127,20 @@ class TitleState extends FlxState
         #if mobile
         for (touch in FlxG.touches.list)
         {
-            if (touch.justPressed)
+            if (touch.justPressed && !stop)
             { 
             finishAnimation = true;
-            me.y = 640;
+            me.y = Main.gameHeight - 60;
             FlxTween.angle(me, me.angle, 0, 0.5, {ease: FlxEase.quartInOut});
             title.y = 40;
             FlxTween.angle(title, title.angle, 0, 0.5, {ease: FlxEase.quartInOut});
-            press.y = 360;
+            press.y = Main.gameHeight / 2;
             FlxTween.angle(press, press.angle, 0, 0.5, {ease: FlxEase.quartInOut});
             if (!stop) skipIntro();
             }
         }
         #else
-        if (FlxG.mouse.justPressed)
+        if (FlxG.mouse.justPressed && !stop)
         { 
             finishAnimation = true;
             me.y = 640;
@@ -154,7 +157,7 @@ class TitleState extends FlxState
     {
         if (!finishAnimation)
         {
-            FlxTween.tween(me, {alpha: 1, y: 660}, 0.2, {ease: FlxEase.quartInOut});
+            FlxTween.tween(me, {alpha: 1, y: Main.gameHeight - 60}, 0.2, {ease: FlxEase.quartInOut});
         }
     }
     function Title(timer:FlxTimer):Void
@@ -168,8 +171,8 @@ class TitleState extends FlxState
     {    
         if(!finishAnimation)
         {       
-            FlxTween.tween(press, {alpha: 1, y: 360}, 0.2, {ease: FlxEase.quartInOut});
-            FlxTween.tween(doit, {alpha: 0, y: -100}, 0.2, {ease: FlxEase.quartInOut});
+            FlxTween.tween(press, {alpha: 1, y: Main.gameHeight / 2}, 0.2, {ease: FlxEase.quartInOut});
+            FlxTween.tween(doit, {alpha: 0, y: -250}, 0.2, {ease: FlxEase.quartInOut});
         }
     }
     function skipIntro()
@@ -180,41 +183,43 @@ class TitleState extends FlxState
         new FlxTimer().start(0.3, function(tmr:FlxTimer)
         {
             FlxTween.angle(title, title.angle, 0, 0.5, {ease: FlxEase.quartInOut});
-            FlxTween.tween(me, {y: 760}, 0.5, {ease: FlxEase.quartInOut});
+            FlxTween.tween(me, {y: Main.gameHeight}, 0.5, {ease: FlxEase.quartInOut});
             FlxTween.tween(press, {alpha: 0}, 0.5, {ease: FlxEase.quartInOut});
             FlxTween.tween(doit, {alpha: 0, y: -100}, 0.1, {ease: FlxEase.quartInOut});
         }, 1);
-        new FlxTimer().start(0.8, function(tmr:FlxTimer)
+        if (FlxG.save.data.optionsUpdate)
         {
-            //Thank you KadeDev and its contributors for doing this
-            title.angle = 0;
+            new FlxTimer().start(0.6, function(tmr:FlxTimer)
+            {
+                //Thank you KadeDev and its contributors for doing this
+                title.angle = 0;
 
-			var http = new haxe.Http("https://raw.githubusercontent.com/BTF2021/C4t/master/version.downloadMe");
-			var returnedData:Array<String> = [];
+			    var http = new haxe.Http("https://raw.githubusercontent.com/BTF2021/C4t/master/version.downloadMe");
+			    var returnedData:Array<String> = [];
 
-			http.onData = function(data:String)
-			{
-				returnedData[0] = data.substring(0, data.indexOf(';'));                       // Get current version
-				returnedData[1] = data.substring(data.indexOf('-'), data.length);
-				if (!MainMenuState.gameVer.contains(returnedData[0].trim()))
-				{
-					trace('outdated version, stupid');
-					UpdateSubState.needVer = returnedData[0];
-					UpdateSubState.currChanges = returnedData[1];
-					openSubState(new UpdateSubState()); //FlxG.switchState(new UpdateSubState());
-				}
-				else
-				{
-					FlxG.switchState(new MainMenuState());
-				}
-			}
-
-			http.onError = function(error)
-			{
-				FlxG.switchState(new MainMenuState()); // Just go to the main menu
-			}
-
-				http.request();
-        }, 1);   
+			    http.onData = function(data:String)
+			    {
+				    returnedData[0] = data.substring(0, data.indexOf(';'));                       // Get current version
+				    returnedData[1] = data.substring(data.indexOf('-'), data.length);
+				    if (!MainMenuState.gameVer.contains(returnedData[0].trim()))
+				    {
+					    trace('outdated version, stupid');
+					    UpdateSubState.needVer = returnedData[0];
+					    UpdateSubState.currChanges = returnedData[1];
+					    openSubState(new UpdateSubState()); //FlxG.switchState(new UpdateSubState());
+				    }
+				    else
+				    {
+					    FlxG.switchState(new MainMenuState());
+				    }
+			    }
+			    http.onError = function(error)
+			    {
+				    FlxG.switchState(new MainMenuState()); // Just go to the main menu
+			    }
+			    http.request();
+            }, 1);
+        }
+        else new FlxTimer().start(0.6, function(tmr:FlxTimer) {FlxG.switchState(new MainMenuState());}, 1);   
     }
 }
