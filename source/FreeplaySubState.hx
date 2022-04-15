@@ -49,6 +49,9 @@ class FreeplaySubState extends FlxSubState
 
     var confirm:FlxSound;
 
+    private var center:Float = Main.gameWidth / 2;
+    var n:Float;
+
     override public function create():Void
     {
         super.create();
@@ -69,7 +72,7 @@ class FreeplaySubState extends FlxSubState
         subTitle.screenCenter(X);
         add(subTitle);
 
-        marker = new FlxSprite(500, 800).loadGraphic(AssetPaths.buttonMarker__png, false, 290, 150);
+        marker = new FlxSprite(500, Main.gameHeight).loadGraphic(AssetPaths.buttonMarker__png, false, 290, 150);
         add(marker);
 
         easy = new FlxSprite(-300, 0).loadGraphic(AssetPaths.button__png, false, 270, 130);
@@ -94,22 +97,22 @@ class FreeplaySubState extends FlxSubState
         normalText.text = "Normal";
         add(normalText);
 
-        hard = new FlxSprite(1580, 0).loadGraphic(AssetPaths.button__png, false, 270, 130);
+        hard = new FlxSprite(Main.gameWidth + 270, 0).loadGraphic(AssetPaths.button__png, false, 270, 130);
         hard.color = 0xEC1C24;
         hard.screenCenter(Y);
         add(hard);
-        hardText = new FlxText(1535, 0);
+        hardText = new FlxText(1635, 0);
         hardText.screenCenter(Y);
         hardText.size = 40;
         hardText.color = 0x88001B;
         hardText.text = "Hard";
         add(hardText);
 
-        extreme = new FlxSprite(1580, 0).loadGraphic(AssetPaths.button__png, false, 270, 130);
+        extreme = new FlxSprite(Main.gameWidth + 270, 0).loadGraphic(AssetPaths.button__png, false, 270, 130);
         extreme.color = 0xA20006;
         extreme.screenCenter(Y);
         add(extreme);
-        extremeText = new FlxText(1535, 0);
+        extremeText = new FlxText(1635, 0);
         extremeText.screenCenter(Y);
         extremeText.size = 40;
         extremeText.color = 0x550011;
@@ -119,7 +122,7 @@ class FreeplaySubState extends FlxSubState
         checkmark = new FlxSprite(0, 0).loadGraphic(AssetPaths.checkymark__png, true, 50, 50);
         checkmark.animation.add("Check", [0, 1, 2, 3], 30, false);
         checkmark.animation.add("LOL", [0], 1, false);
-        checkmark.x = 1400;
+        checkmark.x = Main.gameWidth + 100;
         checkmark.y = 140;
         add(checkmark);
         checkmark.kill();
@@ -127,7 +130,7 @@ class FreeplaySubState extends FlxSubState
         checkmark2 = new FlxSprite(0, 0).loadGraphic(AssetPaths.checkymark__png, true, 50, 50);
         checkmark2.animation.add("Check", [0, 1, 2, 3], 30, false);
         checkmark2.animation.add("LOL", [0], 1, false);
-        checkmark2.x = 1400;
+        checkmark2.x = Main.gameWidth + 100;
         checkmark2.y = 190;
         add(checkmark2);
         checkmark2.kill();
@@ -135,7 +138,7 @@ class FreeplaySubState extends FlxSubState
         checkmark3 = new FlxSprite(0, 0).loadGraphic(AssetPaths.checkymark__png, true, 50, 50);
         checkmark3.animation.add("Check", [0, 1, 2, 3], 30, false);
         checkmark3.animation.add("LOL", [0], 1, false);
-        checkmark3.x = 1400;
+        checkmark3.x = Main.gameWidth + 100;
         checkmark3.y = 240;
         add(checkmark3);
         checkmark3.kill();
@@ -151,19 +154,19 @@ class FreeplaySubState extends FlxSubState
         add(backText);
         #end
 
-        verText = new FlxText(10, 700);
+        verText = new FlxText(10, Main.gameHeight - 20);
         verText.size = 12;
         verText.color = 0xFF000000;
-        verText.text = "Ver 0.1.0 (For closed beta testing only)";
+        verText.text = "Ver" + MainMenuState.gameVer;
         add(verText);
 
-        info = new FlxText(480, 780);
+        info = new FlxText(480, Main.gameHeight);
         info.size = 20;
         info.color = 0xFF000000;
         info.text = "";
         add(info);
 
-        FlxTween.tween(info, {alpha:1, y: 660}, 0.15, {ease: FlxEase.quartInOut});
+        FlxTween.tween(info, {alpha:1, y: Main.gameHeight - 109}, 0.15, {ease: FlxEase.quartInOut});
 
         FlxTween.tween(title, {alpha: 1, y: 0}, 0.2, {ease: FlxEase.quartInOut});
 
@@ -177,6 +180,9 @@ class FreeplaySubState extends FlxSubState
         else checkmark3.animation.play("LOL");
 
         confirm = FlxG.sound.load(AssetPaths.TempConfirm__ogg);
+
+        if(FlxG.save.data.optionsAnimation) n=0.15;
+        else n=0.000000001;
 
         transitioning();
 
@@ -234,34 +240,34 @@ class FreeplaySubState extends FlxSubState
             hardText.color = 0xFF000000;
             hardText.y = 200;
             hardText.text = "Full Power Mode";
-            extreme.color = 0xFF000000;
+            extremeText.color = 0xFF000000;
             extremeText.y = 250;
             extremeText.text = "Inverted Mode";
         }
 
-        new FlxTimer().start(0.15, function(tmr:FlxTimer)
+        new FlxTimer().start(n, function(tmr:FlxTimer)
         {
             if (!layer1) subTitle.text = "Choose Difficulty";
             else subTitle.text = "Enable Modifiers";
-            FlxTween.tween(subTitle, {alpha: 1, y: 40}, 0.2, {ease: FlxEase.quartInOut});
+            FlxTween.tween(subTitle, {alpha: 1, y: 40}, n, {ease: FlxEase.quartInOut});
 
-            if (!layer1) FlxTween.tween(easy, {x: 70}, 0.1, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(easy, {y: 530}, 0.1, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(easyText, {x: 135}, 0.1, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(easyText, {y: 565}, 0.1, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(normal, {x: 350}, 0.15, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(normalText, {x: 395}, 0.15, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(normalText, {x: 150}, 0.15, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(hard, {x: 630}, 0.15, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(hardText, {x: 705}, 0.15, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(hardText, {x: 150}, 0.15, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(extreme, {x: 910}, 0.1, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(extremeText, {x: 945}, 0.1, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(extremeText, {x: 150}, 0.1, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(easy, {x: center - 555}, n-0.05, {ease: FlxEase.quartInOut});
+            else FlxTween.tween(easy, {y: Main.gameHeight - 260}, n-0.05, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(easyText, {x: center - 475}, n-0.05, {ease: FlxEase.quartInOut});
+            else FlxTween.tween(easyText, {y: Main.gameHeight - 225}, n-0.05, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(normal, {x: center - 275}, n, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(normalText, {x: center - 235}, n, {ease: FlxEase.quartInOut});
+            else {normalText.x = -600; FlxTween.tween(normalText, {x: 150}, n, {ease: FlxEase.quartInOut});}
+            if (!layer1) FlxTween.tween(hard, {x: center + 5}, n, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(hardText, {x: center + 85}, n, {ease: FlxEase.quartInOut});
+            else {hardText.x = -600; FlxTween.tween(hardText, {x: 150}, n, {ease: FlxEase.quartInOut});}
+            if (!layer1) FlxTween.tween(extreme, {x: center + 285}, n-0.05, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(extremeText, {x: center + 325}, n-0.05, {ease: FlxEase.quartInOut});
+            else {extremeText.x = -600; FlxTween.tween(extremeText, {x: 150}, n-0.05, {ease: FlxEase.quartInOut});}
 
             #if mobile
-            FlxTween.tween(back, {alpha:1, y: 40}, 0.15, {ease: FlxEase.quartInOut});
-            FlxTween.tween(backText, {alpha:1, y: 39}, 0.15, {ease: FlxEase.quartInOut});
+            FlxTween.tween(back, {alpha:1, y: 40}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(backText, {alpha:1, y: 39}, n, {ease: FlxEase.quartInOut});
             #end
 
             if (layer1)
@@ -270,12 +276,12 @@ class FreeplaySubState extends FlxSubState
                 checkmark2.revive();
                 checkmark3.revive();
 
-                FlxTween.tween(checkmark, {x: 1000}, 0.1, {ease: FlxEase.quartInOut});
-                FlxTween.tween(checkmark2, {x: 1000}, 0.1, {ease: FlxEase.quartInOut});
-                FlxTween.tween(checkmark3, {x: 1000}, 0.1, {ease: FlxEase.quartInOut});
+                FlxTween.tween(checkmark, {x: Main.gameWidth - 250}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(checkmark2, {x: Main.gameWidth - 250}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(checkmark3, {x: Main.gameWidth - 250}, n-0.05, {ease: FlxEase.quartInOut});
             }
     
-            new FlxTimer().start(0.1, function(tmr:FlxTimer) 
+            new FlxTimer().start(n-0.05, function(tmr:FlxTimer) 
             {
                 canBeClicked = true;
                 if(!layer1)marker.revive();
@@ -284,31 +290,31 @@ class FreeplaySubState extends FlxSubState
     }
     function getOuttaHere()
     {
-        new FlxTimer().start(0.15, function(tmr:FlxTimer)
+        new FlxTimer().start(n, function(tmr:FlxTimer)
         {
             canBeClicked = false;
             marker.kill();
 
-            FlxTween.tween(subTitle, {alpha: 1, y: -60}, 0.2, {ease: FlxEase.quartInOut});
+            FlxTween.tween(subTitle, {alpha: 1, y: -60}, n, {ease: FlxEase.quartInOut});
             
-            if (!layer1) FlxTween.tween(easy, {y: 800}, 0.1, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(easy, {x: -300}, 0.1, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(easyText, {y: 780}, 0.1, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(easyText, {x: -255}, 0.1, {ease: FlxEase.quartInOut});
-            FlxTween.tween(normal, {x: -300}, 0.15, {ease: FlxEase.quartInOut});
-            FlxTween.tween(normalText, {x: -455}, 0.15, {ease: FlxEase.quartInOut});
-            FlxTween.tween(hard, {x: 1580}, 0.15, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(hardText, {x: -455}, 0.15, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(hardText, {x: 1535}, 0.15, {ease: FlxEase.quartInOut});
-            FlxTween.tween(extreme, {x: 1580}, 0.1, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(extremeText, {x: -455}, 0.15, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(extremeText, {x: 1535}, 0.1, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(easy, {y: Main.gameWidth}, n-0.05, {ease: FlxEase.quartInOut});
+            else FlxTween.tween(easy, {x: -300}, n-0.05, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(easyText, {y: Main.gameWidth}, n-0.05, {ease: FlxEase.quartInOut});
+            else FlxTween.tween(easyText, {x: -255}, n-0.05, {ease: FlxEase.quartInOut});
+            FlxTween.tween(normal, {x: -300}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(normalText, {x: -600}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(hard, {x: 1580}, n, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(hardText, {x: -600}, n, {ease: FlxEase.quartInOut});
+            else FlxTween.tween(hardText, {x: 1535}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(extreme, {x: 1580}, n-0.05, {ease: FlxEase.quartInOut});
+            if (!layer1) FlxTween.tween(extremeText, {x: -600}, n, {ease: FlxEase.quartInOut});
+            else FlxTween.tween(extremeText, {x: 1535}, n-0.05, {ease: FlxEase.quartInOut});
 
             if (!layer1)
             {
-                FlxTween.tween(checkmark, {x: 2400}, 0.1, {ease: FlxEase.quartInOut});
-                FlxTween.tween(checkmark2, {x: 2400}, 0.1, {ease: FlxEase.quartInOut});
-                FlxTween.tween(checkmark3, {x: 2400}, 0.1, {ease: FlxEase.quartInOut});
+                FlxTween.tween(checkmark, {x: Main.gameWidth + 20}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(checkmark2, {x: Main.gameWidth + 20}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(checkmark3, {x: Main.gameWidth + 20}, n-0.05, {ease: FlxEase.quartInOut});
                 checkmark.kill();
                 checkmark2.kill();
                 checkmark3.kill();
@@ -316,7 +322,7 @@ class FreeplaySubState extends FlxSubState
 
             info.text = '';
         
-            new FlxTimer().start(0.15, function(tmr:FlxTimer) 
+            new FlxTimer().start(n, function(tmr:FlxTimer) 
             {
                 normal.kill();
                 hard.kill();
@@ -341,17 +347,35 @@ class FreeplaySubState extends FlxSubState
             {
                 marker.x = easy.x - 10;
                 marker.y = easy.y - 10;
-                if (!layer1) info.text = "7 lives, slower bolt speed, shorter dodge cooldown. Easy mode? More like, baby mode.";
-                else info.text = "Begin the game";
+                if (!layer1) if(FlxG.save.data.optionsInfo)info.text = "7 lives, slower bolt speed, shorter dodge cooldown. Easy mode? More like, baby mode.";
+                else if(FlxG.save.data.optionsInfo)info.text = "Begin the game";
                 info.screenCenter(X);
             }
             if (FlxG.mouse.justPressed && !layer1)
             {
-                FlxG.save.data.sistemDifficulty = 1;
-                layer1 = true;
-                getOuttaHere();
-                //FlxG.sound.music.stop();
-                //FlxG.switchState(new PlayState());
+                if (FlxG.save.data.optionsModifier)
+                {
+                    FlxG.save.data.sistemDifficulty = 1;
+                    layer1 = true;
+                    getOuttaHere();
+                    //FlxG.sound.music.stop();
+                    //FlxG.switchState(new PlayState());
+                }
+                else
+                {
+                    FlxG.save.data.sistemDifficulty = 1;
+                    FlxG.camera.flash(FlxColor.WHITE, 1);
+                    confirm.play(true);
+                    new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                    {
+                        DefaultData.initSave();
+                        //#if !mobile
+                        FlxG.switchState(new PlayState());
+                        //#else
+                        //FlxG.switchState(new PlayStateMobile());
+                        //#end
+                    }, 1);
+                }
             }
             else if (FlxG.mouse.justPressed && layer1)
             {
@@ -370,16 +394,34 @@ class FreeplaySubState extends FlxSubState
             {
                 marker.x = normal.x - 10;
                 marker.y = normal.y - 10;
-                info.text = "5 lives, normal bolt speed, normal dodge cooldown. The standart difficulty.";
+                if(FlxG.save.data.optionsInfo)info.text = "5 lives, normal bolt speed, normal dodge cooldown. The standart difficulty.";
                 info.screenCenter(X);
             }
             if (FlxG.mouse.justPressed)
             {
-                FlxG.save.data.sistemDifficulty = 2;
-                layer1 = true;
-                getOuttaHere();
-                //FlxG.sound.music.stop();
-                //FlxG.switchState(new PlayState());
+                if (FlxG.save.data.optionsModifier)
+                {
+                    FlxG.save.data.sistemDifficulty = 2;
+                    layer1 = true;
+                    getOuttaHere();
+                    //FlxG.sound.music.stop();
+                    //FlxG.switchState(new PlayState());
+                }
+                else
+                {
+                    FlxG.save.data.sistemDifficulty = 2;
+                    FlxG.camera.flash(FlxColor.WHITE, 1);
+                    confirm.play(true);
+                    new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                    {
+                        DefaultData.initSave();
+                        //#if !mobile
+                        FlxG.switchState(new PlayState());
+                        //#else
+                        //FlxG.switchState(new PlayStateMobile());
+                        //#end
+                    }, 1);
+                }
             }
         }
         if (FlxG.mouse.overlaps(hard))
@@ -388,16 +430,34 @@ class FreeplaySubState extends FlxSubState
             {
                 marker.x = hard.x - 10;
                 marker.y = hard.y - 10;
-                info.text = "3 lives, faster bolt speed, longer dodge cooldown. Normal difficulty, but spicier.";
+                if(FlxG.save.data.optionsInfo)info.text = "3 lives, faster bolt speed, longer dodge cooldown. Normal difficulty, but spicier.";
                 info.screenCenter(X);
             }
             if (FlxG.mouse.justPressed)
             {
-                FlxG.save.data.sistemDifficulty = 3;
-                layer1 = true;
-                getOuttaHere();
-                //FlxG.sound.music.stop();
-                //FlxG.switchState(new PlayState());
+                if (FlxG.save.data.optionsModifier)
+                {
+                    FlxG.save.data.sistemDifficulty = 3;
+                    layer1 = true;
+                    getOuttaHere();
+                    //FlxG.sound.music.stop();
+                    //FlxG.switchState(new PlayState());
+                }
+                else
+                {
+                    FlxG.save.data.sistemDifficulty = 3;
+                    FlxG.camera.flash(FlxColor.WHITE, 1);
+                    confirm.play(true);
+                    new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                    {
+                        DefaultData.initSave();
+                        //#if !mobile
+                        FlxG.switchState(new PlayState());
+                        //#else
+                        //FlxG.switchState(new PlayStateMobile());
+                        //#end
+                    }, 1);
+                }
             }
         }
         if (FlxG.mouse.overlaps(extreme))
@@ -406,22 +466,40 @@ class FreeplaySubState extends FlxSubState
             {
                 marker.x = extreme.x - 10;
                 marker.y = extreme.y - 10;
-                info.text = "Only 1 life, even faster bolt speed, NO DODGE. The hardest difficulty mode ever, no cap.";
+                if(FlxG.save.data.optionsInfo)info.text = "Only 1 life, even faster bolt speed, NO DODGE. The hardest difficulty mode ever, no cap.";
                 info.screenCenter(X);
             }
             if (FlxG.mouse.justPressed)
             {
-                FlxG.save.data.sistemDifficulty = 4;
-                layer1 = true;
-                getOuttaHere();
-                //FlxG.sound.music.stop();
-                //FlxG.switchState(new PlayState());
+                if (FlxG.save.data.optionsModifier)
+                {
+                    FlxG.save.data.sistemDifficulty = 4;
+                    layer1 = true;
+                    getOuttaHere();
+                    //FlxG.sound.music.stop();
+                    //FlxG.switchState(new PlayState());
+                }
+                else
+                {
+                    FlxG.save.data.sistemDifficulty = 4;
+                    FlxG.camera.flash(FlxColor.WHITE, 1);
+                    confirm.play(true);
+                    new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                    {
+                        DefaultData.initSave();
+                        //#if !mobile
+                        FlxG.switchState(new PlayState());
+                        //#else
+                        //FlxG.switchState(new PlayStateMobile());
+                        //#end
+                    }, 1);
+                }
             }
         }
 
         if (FlxG.mouse.overlaps(checkmark))
         {
-            info.text = "This modifier REPLACES mouse-left click scheme with arrow keys-ctrl. This name fits perfectly.";
+            if(FlxG.save.data.optionsInfo)info.text = "This modifier REPLACES mouse-left click scheme with arrow keys-ctrl. This name fits perfectly.";
             info.screenCenter(X);
             if (FlxG.mouse.justPressed)
             {
@@ -432,7 +510,7 @@ class FreeplaySubState extends FlxSubState
         }
         if (FlxG.mouse.overlaps(checkmark2))
         {
-            info.text = "This modifier makes all bolts to spawn at the beginning. The whole 10.";
+            if(FlxG.save.data.optionsInfo)info.text = "This modifier makes all bolts to spawn at the beginning. The whole 10.";
             info.screenCenter(X);
             if (FlxG.mouse.justPressed)
             {
@@ -443,7 +521,7 @@ class FreeplaySubState extends FlxSubState
         }
         if (FlxG.mouse.overlaps(checkmark3))
         {
-            info.text = "This modifier 'changes' gravity... and by gravity I mean makes the bolts moves from down to up.";
+            if(FlxG.save.data.optionsInfo)info.text = "This modifier 'changes' gravity... and by gravity I mean makes the bolts moves from down to up.";
             info.screenCenter(X);
             if (FlxG.mouse.justPressed)
             {
@@ -453,8 +531,9 @@ class FreeplaySubState extends FlxSubState
             }
         }
 
-        if(FlxG.keys.justPressed.ESCAPE)
+        if(FlxG.keys.justPressed.ESCAPE && canBeClicked)
         {
+            canBeClicked = false;
             if (layer1)
             {
                 layer1 = false;
@@ -471,17 +550,35 @@ class FreeplaySubState extends FlxSubState
                 {
                     marker.x = easy.x - 10;
                     marker.y = easy.y - 10;
-                    if (!layer1) info.text = "7 lives, slower bolt speed, shorter dodge cooldown. Easy mode? More like, baby mode.";
-                    else info.text = "Begin the game";
+                    if (!layer1) if(FlxG.save.data.optionsInfo)info.text = "7 lives, slower bolt speed, shorter dodge cooldown. Easy mode? More like, baby mode.";
+                    else if(FlxG.save.data.optionsInfo)info.text = "Begin the game";
                     info.screenCenter(X);
                 }
                 if (touch.justReleased && !layer1)
                 {
-                    FlxG.save.data.sistemDifficulty = 1;
-                    layer1 = true;
-                    getOuttaHere();
-                    //FlxG.sound.music.stop();
-                    //FlxG.switchState(new PlayState());
+                    if (FlxG.save.data.optionsModifier)
+                    {
+                        FlxG.save.data.sistemDifficulty = 1;
+                        layer1 = true;
+                        getOuttaHere();
+                        //FlxG.sound.music.stop();
+                        //FlxG.switchState(new PlayState());
+                    }
+                    else
+                    {
+                        FlxG.save.data.sistemDifficulty = 1;
+                        FlxG.camera.flash(FlxColor.WHITE, 1);
+                        confirm.play(true);
+                        new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                        {
+                            DefaultData.initSave();
+                            //#if !mobile
+                            FlxG.switchState(new PlayState());
+                            //#else
+                            //FlxG.switchState(new PlayStateMobile());
+                            //#end
+                        }, 1);
+                    }
                 }
                 else if (touch.justReleased && layer1)
                 {
@@ -490,11 +587,11 @@ class FreeplaySubState extends FlxSubState
                     new FlxTimer().start(0.5, function(tmr:FlxTimer) 
                     {
                         DefaultData.initSave();
-                        #if !mobile
+                        //#if !mobile
                         FlxG.switchState(new PlayState());
-                        #else
-                        FlxG.switchState(new PlayStateMobile());
-                        #end
+                        //#else
+                        //FlxG.switchState(new PlayStateMobile());
+                        //#end
                     }, 1);
                 }
             }
@@ -504,16 +601,34 @@ class FreeplaySubState extends FlxSubState
                 {
                     marker.x = normal.x - 10;
                     marker.y = normal.y - 10;
-                    info.text = "5 lives, normal bolt speed, normal dodge cooldown. The standart difficulty.";
+                    if(FlxG.save.data.optionsInfo)info.text = "5 lives, normal bolt speed, normal dodge cooldown. The standart difficulty.";
                     info.screenCenter(X);
                 }
                 if (touch.justReleased)
                 {
-                    FlxG.save.data.sistemDifficulty = 2;
-                    layer1 = true;
-                    getOuttaHere();
-                    //FlxG.sound.music.stop();
-                    //FlxG.switchState(new PlayState());
+                    if (FlxG.save.data.optionsModifier)
+                    {
+                        FlxG.save.data.sistemDifficulty = 2;
+                        layer1 = true;
+                        getOuttaHere();
+                        //FlxG.sound.music.stop();
+                        //FlxG.switchState(new PlayState());
+                    }
+                    else
+                    {
+                        FlxG.save.data.sistemDifficulty = 2;
+                        FlxG.camera.flash(FlxColor.WHITE, 1);
+                        confirm.play(true);
+                        new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                        {
+                            DefaultData.initSave();
+                            //#if !mobile
+                            FlxG.switchState(new PlayState());
+                            //#else
+                            //FlxG.switchState(new PlayStateMobile());
+                             //#end
+                        }, 1);
+                    }
                 }
             }
             if (touch.overlaps(hard))
@@ -522,16 +637,34 @@ class FreeplaySubState extends FlxSubState
                 {
                     marker.x = hard.x - 10;
                     marker.y = hard.y - 10;
-                    info.text = "3 lives, faster bolt speed, longer dodge cooldown. Normal difficulty, but spicier.";
+                    if(FlxG.save.data.optionsInfo)info.text = "3 lives, faster bolt speed, longer dodge cooldown. Normal difficulty, but spicier.";
                     info.screenCenter(X);
                 }
                 if (touch.justReleased)
                 {
-                    FlxG.save.data.sistemDifficulty = 3;
-                    layer1 = true;
-                    getOuttaHere();
-                    //FlxG.sound.music.stop();
-                    //FlxG.switchState(new PlayState());
+                    if (FlxG.save.data.optionsModifier)
+                    {
+                        FlxG.save.data.sistemDifficulty = 3;
+                        layer1 = true;
+                        getOuttaHere();
+                        //FlxG.sound.music.stop();
+                        //FlxG.switchState(new PlayState());
+                    }
+                    else
+                    {
+                        FlxG.save.data.sistemDifficulty = 3;
+                        FlxG.camera.flash(FlxColor.WHITE, 1);
+                        confirm.play(true);
+                        new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                        {
+                            DefaultData.initSave();
+                            //#if !mobile
+                            FlxG.switchState(new PlayState());
+                            //#else
+                            //FlxG.switchState(new PlayStateMobile());
+                            //#end
+                        }, 1);
+                    }
                 }
             }
             if (touch.overlaps(extreme))
@@ -540,22 +673,40 @@ class FreeplaySubState extends FlxSubState
                 {
                     marker.x = extreme.x - 10;
                     marker.y = extreme.y - 10;
-                    info.text = "Only 1 life, even faster bolt speed, NO DODGE. The hardest difficulty mode ever, no cap.";
+                    if(FlxG.save.data.optionsInfo)info.text = "Only 1 life, even faster bolt speed, NO DODGE. The hardest difficulty mode ever, no cap.";
                     info.screenCenter(X);
                 }
                 if (touch.justReleased)
                 {
-                    FlxG.save.data.sistemDifficulty = 4;
-                    layer1 = true;
-                    getOuttaHere();
-                    //FlxG.sound.music.stop();
-                    //FlxG.switchState(new PlayState());
+                    if (FlxG.save.data.optionsModifier)
+                    {
+                        FlxG.save.data.sistemDifficulty = 4;
+                        layer1 = true;
+                        getOuttaHere();
+                        //FlxG.sound.music.stop();
+                        //FlxG.switchState(new PlayState());
+                    }
+                    else
+                    {
+                        FlxG.save.data.sistemDifficulty = 4;
+                        FlxG.camera.flash(FlxColor.WHITE, 1);
+                        confirm.play(true);
+                        new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                        {
+                            DefaultData.initSave();
+                            //#if !mobile
+                            FlxG.switchState(new PlayState());
+                            //#else
+                            //FlxG.switchState(new PlayStateMobile());
+                            //#end
+                        }, 1);
+                    }
                 }
             }
     
             if (touch.overlaps(checkmark))
             {
-                info.text = "This modifier disables the 'ability' to teleport. Now you can't exploit this, HaHa.";
+                if(FlxG.save.data.optionsInfo)info.text = "This modifier disables the 'ability' to teleport. Now you can't exploit this, HaHa.";
                 info.screenCenter(X);
                 if (touch.justReleased)
                 {
@@ -566,7 +717,7 @@ class FreeplaySubState extends FlxSubState
             }
             if (touch.overlaps(checkmark2))
             {
-                info.text = "This modifier makes all bolts to spawn at the beginning. The whole 13.";
+                if(FlxG.save.data.optionsInfo)info.text = "This modifier makes all bolts to spawn at the beginning. The whole 13.";
                 info.screenCenter(X);
                 if (touch.justReleased)
                 {
@@ -577,7 +728,7 @@ class FreeplaySubState extends FlxSubState
             }
             if (touch.overlaps(checkmark3))
             {
-                info.text = "This modifier 'changes' gravity... and by gravity I mean makes the bolts moves from down to up.";
+                if(FlxG.save.data.optionsInfo)info.text = "This modifier 'changes' gravity... and by gravity I mean makes the bolts moves from down to up.";
                 info.screenCenter(X);
                 if (touch.justReleased)
                 {
@@ -587,8 +738,9 @@ class FreeplaySubState extends FlxSubState
                 }
             }
     
-            if(touch.overlaps(back) && touch.justReleased)
+            if(touch.overlaps(back) && touch.justReleased && canBeClicked)
             {
+                canBeClicked = false;
                 if (layer1)
                 {
                     layer1 = false;
