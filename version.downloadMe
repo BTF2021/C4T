@@ -1,5 +1,4 @@
-0.1.0;
-- A Menu
-- 4 Difficulties
-- 3 Modifiers
-- Sounds
+0.1.1;
+- Options menu
+- UI being consistent with the screen size (including tablets)
+- That's it LOL
