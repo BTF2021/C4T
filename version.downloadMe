@@ -1,5 +1,5 @@
-0.1.1;
-- Options menu
-- UI being consistent with the screen size (including tablets)
-- Some changes here and there 
-- That's it LOL 
+0.1.2;
+- New Modifier: Thunder Mayhem
+- New Difficulty: Custom
+- Fixed the options not saving in the mobile version (Issue #2)
+- Fixed the option menu softlock in the mobile version(Issue #3)
