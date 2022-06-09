@@ -27,10 +27,15 @@ class FreeplaySubState extends FlxSubState
     var hardText:FlxText;
     var extreme:FlxSprite;
     var extremeText:FlxText;
+    var custom:FlxSprite;
+    var customText:FlxText;
+
+    var Thundmay:FlxText;
 
     var checkmark:FlxSprite;
     var checkmark2:FlxSprite;
     var checkmark3:FlxSprite;
+    var checkmark4:FlxSprite;
 
     var title:FlxText;
     var subTitle:FlxText;
@@ -62,7 +67,7 @@ class FreeplaySubState extends FlxSubState
         title = new FlxText(0, -80);
         title.size = 40;
         title.color = 0xFF000000;
-        title.text = 'Freeplay Menu';
+        title.text = 'Play Menu';
         title.screenCenter(X);
         add(title);
         subTitle = new FlxText(0, -80);
@@ -119,6 +124,23 @@ class FreeplaySubState extends FlxSubState
         extremeText.text = "Extreme";
         add(extremeText);
 
+        custom = new FlxSprite(0, Main.gameHeight).loadGraphic(AssetPaths.button__png, false, 270, 130);
+        custom.color = 0x82838e;
+        custom.screenCenter(X);
+        add(custom);
+        customText = new FlxText(0, Main.gameHeight);
+        customText.size = 40;
+        customText.color = 0x55555c;
+        customText.text = "Custom";
+        customText.screenCenter(X);
+        add(customText);
+
+        Thundmay = new FlxText(-800, 300);
+        Thundmay.size = 40;
+        Thundmay.color = 0xFF000000;
+        Thundmay.text = "Thunder Mayhem";
+        add(Thundmay);
+
         checkmark = new FlxSprite(0, 0).loadGraphic(AssetPaths.checkymark__png, true, 50, 50);
         checkmark.animation.add("Check", [0, 1, 2, 3], 30, false);
         checkmark.animation.add("LOL", [0], 1, false);
@@ -143,6 +165,14 @@ class FreeplaySubState extends FlxSubState
         add(checkmark3);
         checkmark3.kill();
 
+        checkmark4 = new FlxSprite(0, 0).loadGraphic(AssetPaths.checkymark__png, true, 50, 50);
+        checkmark4.animation.add("Check", [0, 1, 2, 3], 30, false);
+        checkmark4.animation.add("LOL", [0], 1, false);
+        checkmark4.x = Main.gameWidth + 100;
+        checkmark4.y = 290;
+        add(checkmark4);
+        checkmark4.kill();
+
         #if mobile
         back = new FlxSprite(20, -200).loadGraphic(AssetPaths.Backbutton__png, false, 60, 40);
         back.color = 0xFF9819;
@@ -157,7 +187,7 @@ class FreeplaySubState extends FlxSubState
         verText = new FlxText(10, Main.gameHeight - 20);
         verText.size = 12;
         verText.color = 0xFF000000;
-        verText.text = "Ver" + MainMenuState.gameVer;
+        verText.text = "Ver " + MainMenuState.gameVer;
         add(verText);
 
         info = new FlxText(480, Main.gameHeight);
@@ -165,6 +195,11 @@ class FreeplaySubState extends FlxSubState
         info.color = 0xFF000000;
         info.text = "";
         add(info);
+
+
+        DefaultData.initSave();
+
+
 
         FlxTween.tween(info, {alpha:1, y: Main.gameHeight - 109}, 0.15, {ease: FlxEase.quartInOut});
 
@@ -178,6 +213,9 @@ class FreeplaySubState extends FlxSubState
         
         if (FlxG.save.data.sistemInvert == true) checkmark3.animation.play("Check");
         else checkmark3.animation.play("LOL");
+
+        if (FlxG.save.data.sistemThundMay == true) checkmark4.animation.play("Check");
+        else checkmark4.animation.play("LOL");
 
         confirm = FlxG.sound.load(AssetPaths.TempConfirm__ogg);
 
@@ -217,6 +255,7 @@ class FreeplaySubState extends FlxSubState
             extremeText.color = 0x550011;
             extremeText.text = "Extreme";
             extremeText.screenCenter(Y);
+            custom.y = Main.gameHeight + 10;
         }
         else if (layer1)
         {
@@ -251,36 +290,42 @@ class FreeplaySubState extends FlxSubState
             else subTitle.text = "Enable Modifiers";
             FlxTween.tween(subTitle, {alpha: 1, y: 40}, n, {ease: FlxEase.quartInOut});
 
-            if (!layer1) FlxTween.tween(easy, {x: center - 555}, n-0.05, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(easy, {y: Main.gameHeight - 260}, n-0.05, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(easyText, {x: center - 475}, n-0.05, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(easyText, {y: Main.gameHeight - 225}, n-0.05, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(normal, {x: center - 275}, n, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(normalText, {x: center - 235}, n, {ease: FlxEase.quartInOut});
-            else {normalText.x = -600; FlxTween.tween(normalText, {x: 150}, n, {ease: FlxEase.quartInOut});}
-            if (!layer1) FlxTween.tween(hard, {x: center + 5}, n, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(hardText, {x: center + 85}, n, {ease: FlxEase.quartInOut});
-            else {hardText.x = -600; FlxTween.tween(hardText, {x: 150}, n, {ease: FlxEase.quartInOut});}
-            if (!layer1) FlxTween.tween(extreme, {x: center + 285}, n-0.05, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(extremeText, {x: center + 325}, n-0.05, {ease: FlxEase.quartInOut});
-            else {extremeText.x = -600; FlxTween.tween(extremeText, {x: 150}, n-0.05, {ease: FlxEase.quartInOut});}
-
-            #if mobile
-            FlxTween.tween(back, {alpha:1, y: 40}, n, {ease: FlxEase.quartInOut});
-            FlxTween.tween(backText, {alpha:1, y: 39}, n, {ease: FlxEase.quartInOut});
-            #end
-
-            if (layer1)
+            if(!layer1)
             {
+                FlxTween.tween(easy, {x: center - 555}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(easyText, {x: center - 475}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(normal, {x: center - 275}, n, {ease: FlxEase.quartInOut});
+                FlxTween.tween(normalText, {x: center - 235}, n, {ease: FlxEase.quartInOut});
+                FlxTween.tween(hard, {x: center + 5}, n, {ease: FlxEase.quartInOut});
+                FlxTween.tween(hardText, {x: center + 85}, n, {ease: FlxEase.quartInOut});
+                FlxTween.tween(extreme, {x: center + 285}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(extremeText, {x: center + 325}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(custom, {y: Main.gameHeight / 2 + 75}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(customText, {y: Main.gameHeight / 2 + 115}, n-0.05, {ease: FlxEase.quartInOut});
+            }
+            else
+            {
+                FlxTween.tween(easy, {y: Main.gameHeight - 260}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(easyText, {y: Main.gameHeight - 225}, n-0.05, {ease: FlxEase.quartInOut});
+                normalText.x = -600; FlxTween.tween(normalText, {x: 150}, n, {ease: FlxEase.quartInOut});
+                hardText.x = -600; FlxTween.tween(hardText, {x: 150}, n, {ease: FlxEase.quartInOut});
+                extremeText.x = -600; FlxTween.tween(extremeText, {x: 150}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(Thundmay, {x: 150}, n-0.05, {ease: FlxEase.quartInOut});
+
                 checkmark.revive();
                 checkmark2.revive();
                 checkmark3.revive();
+                checkmark4.revive();
 
                 FlxTween.tween(checkmark, {x: Main.gameWidth - 250}, n-0.05, {ease: FlxEase.quartInOut});
                 FlxTween.tween(checkmark2, {x: Main.gameWidth - 250}, n-0.05, {ease: FlxEase.quartInOut});
                 FlxTween.tween(checkmark3, {x: Main.gameWidth - 250}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(checkmark4, {x: Main.gameWidth - 250}, n-0.05, {ease: FlxEase.quartInOut});
             }
-    
+            #if mobile
+            FlxTween.tween(back, {alpha:1, y: 40}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(backText, {alpha:1, y: 39}, n, {ease: FlxEase.quartInOut});
+            #end
             new FlxTimer().start(n-0.05, function(tmr:FlxTimer) 
             {
                 canBeClicked = true;
@@ -297,28 +342,37 @@ class FreeplaySubState extends FlxSubState
 
             FlxTween.tween(subTitle, {alpha: 1, y: -60}, n, {ease: FlxEase.quartInOut});
             
-            if (!layer1) FlxTween.tween(easy, {y: Main.gameWidth}, n-0.05, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(easy, {x: -300}, n-0.05, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(easyText, {y: Main.gameWidth}, n-0.05, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(easyText, {x: -255}, n-0.05, {ease: FlxEase.quartInOut});
-            FlxTween.tween(normal, {x: -300}, n, {ease: FlxEase.quartInOut});
-            FlxTween.tween(normalText, {x: -600}, n, {ease: FlxEase.quartInOut});
-            FlxTween.tween(hard, {x: 1580}, n, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(hardText, {x: -600}, n, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(hardText, {x: 1535}, n, {ease: FlxEase.quartInOut});
-            FlxTween.tween(extreme, {x: 1580}, n-0.05, {ease: FlxEase.quartInOut});
-            if (!layer1) FlxTween.tween(extremeText, {x: -600}, n, {ease: FlxEase.quartInOut});
-            else FlxTween.tween(extremeText, {x: 1535}, n-0.05, {ease: FlxEase.quartInOut});
-
             if (!layer1)
             {
+                FlxTween.tween(easy, {y: Main.gameWidth}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(easyText, {y: Main.gameWidth}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(hardText, {x: -600}, n, {ease: FlxEase.quartInOut});
+                FlxTween.tween(extremeText, {x: -600}, n, {ease: FlxEase.quartInOut});
+                FlxTween.tween(Thundmay, {x: -600}, n-0.05, {ease: FlxEase.quartInOut});
+
                 FlxTween.tween(checkmark, {x: Main.gameWidth + 20}, n-0.05, {ease: FlxEase.quartInOut});
                 FlxTween.tween(checkmark2, {x: Main.gameWidth + 20}, n-0.05, {ease: FlxEase.quartInOut});
                 FlxTween.tween(checkmark3, {x: Main.gameWidth + 20}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(checkmark4, {x: Main.gameWidth + 20}, n-0.05, {ease: FlxEase.quartInOut});
                 checkmark.kill();
                 checkmark2.kill();
                 checkmark3.kill();
+                checkmark4.kill();
             }
+            else
+            {
+                FlxTween.tween(easy, {x: -300}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(easyText, {x: -255}, n-0.05, {ease: FlxEase.quartInOut});
+                FlxTween.tween(hardText, {x: 1535}, n, {ease: FlxEase.quartInOut});
+                FlxTween.tween(extremeText, {x: 1535}, n-0.05, {ease: FlxEase.quartInOut});
+            }
+            FlxTween.tween(normal, {x: -300}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(normalText, {x: -600}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(hard, {x: 1580}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(extreme, {x: 1580}, n-0.05, {ease: FlxEase.quartInOut});
+
+            FlxTween.tween(custom, {y: Main.gameHeight}, n, {ease: FlxEase.quartInOut});
+            FlxTween.tween(customText, {y: Main.gameHeight + 45}, n-0.05, {ease: FlxEase.quartInOut});
 
             info.text = '';
         
@@ -369,6 +423,7 @@ class FreeplaySubState extends FlxSubState
                     new FlxTimer().start(0.5, function(tmr:FlxTimer) 
                     {
                         DefaultData.initSave();
+                        FlxG.save.flush();
                         //#if !mobile
                         FlxG.switchState(new PlayState());
                         //#else
@@ -497,6 +552,44 @@ class FreeplaySubState extends FlxSubState
             }
         }
 
+        if (FlxG.mouse.overlaps(custom))
+        {
+            if (canBeClicked)
+            {
+                marker.x = custom.x - 10;
+                marker.y = custom.y - 10;
+                if(FlxG.save.data.optionsInfo)info.text = "Choose the number of lives, the speed of bolts and the cooldown";
+                info.screenCenter(X);
+            }
+            if (FlxG.mouse.justPressed)
+            {
+                if (FlxG.save.data.optionsModifier)
+                {
+                    FlxG.save.data.sistemDifficulty = 5;
+                    layer1 = true;
+                    openSubState(new CustomDiffSubSubState());
+                    getOuttaHere();
+                    //FlxG.sound.music.stop();
+                    //FlxG.switchState(new PlayState());
+                }
+                else
+                {
+                    FlxG.save.data.sistemDifficulty = 5;
+                    FlxG.camera.flash(FlxColor.WHITE, 1);
+                    confirm.play(true);
+                    new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                    {
+                        DefaultData.initSave();
+                        //#if !mobile
+                        FlxG.switchState(new PlayState());
+                        //#else
+                        //FlxG.switchState(new PlayStateMobile());
+                        //#end
+                    }, 1);
+                }
+            }
+        }
+
         if (FlxG.mouse.overlaps(checkmark))
         {
             if(FlxG.save.data.optionsInfo)info.text = "This modifier REPLACES mouse-left click scheme with arrow keys-ctrl. This name fits perfectly.";
@@ -526,11 +619,31 @@ class FreeplaySubState extends FlxSubState
             if (FlxG.mouse.justPressed)
             {
                 FlxG.save.data.sistemInvert = !FlxG.save.data.sistemInvert;
+                if(FlxG.save.data.sistemThundMay)
+                {
+                    FlxG.save.data.sistemThundMay = false;
+                    checkmark4.animation.play("LOL");
+                }
                 if (FlxG.save.data.sistemInvert == true) checkmark3.animation.play("Check");
                 else checkmark3.animation.play("LOL");
             }
         }
-
+        if (FlxG.mouse.overlaps(checkmark4))
+        {
+            if(FlxG.save.data.optionsInfo)info.text = "Everything seems normal... until you realise bolts also come under your feet and also flickers";
+            info.screenCenter(X);
+            if (FlxG.mouse.justPressed)
+            {
+                FlxG.save.data.sistemThundMay = !FlxG.save.data.sistemThundMay;
+                if(FlxG.save.data.sistemInvert)
+                {
+                    FlxG.save.data.sistemInvert = false;
+                    checkmark3.animation.play("LOL");
+                }
+                if (FlxG.save.data.sistemThundMay == true) checkmark4.animation.play("Check");
+                else checkmark4.animation.play("LOL");
+            }
+        }
         if(FlxG.keys.justPressed.ESCAPE && canBeClicked)
         {
             canBeClicked = false;
@@ -572,6 +685,7 @@ class FreeplaySubState extends FlxSubState
                         new FlxTimer().start(0.5, function(tmr:FlxTimer) 
                         {
                             DefaultData.initSave();
+                            FlxG.save.flush();
                             //#if !mobile
                             FlxG.switchState(new PlayState());
                             //#else
@@ -703,6 +817,43 @@ class FreeplaySubState extends FlxSubState
                     }
                 }
             }
+            if (touch.overlaps(custom))
+            {
+                if (canBeClicked)
+                {
+                    marker.x = custom.x - 10;
+                    marker.y = custom.y - 10;
+                    if(FlxG.save.data.optionsInfo)info.text = "Choose the number of lives, the speed of bolts and the cooldown";
+                    info.screenCenter(X);
+                }
+                if (touch.justPressed)
+                {
+                    if (FlxG.save.data.optionsModifier)
+                    {
+                        FlxG.save.data.sistemDifficulty = 5;
+                        layer1 = true;
+                        openSubState(new CustomDiffSubSubState());
+                        getOuttaHere();
+                        //FlxG.sound.music.stop();
+                        //FlxG.switchState(new PlayState());
+                    }
+                    else
+                    {
+                        FlxG.save.data.sistemDifficulty = 5;
+                        FlxG.camera.flash(FlxColor.WHITE, 1);
+                        confirm.play(true);
+                        new FlxTimer().start(0.5, function(tmr:FlxTimer) 
+                        {
+                            DefaultData.initSave();
+                            //#if !mobile
+                            openSubState(new CustomDiffSubSubState());
+                            //#else
+                            //FlxG.switchState(new PlayStateMobile());
+                            //#end
+                        }, 1);
+                    }
+                }
+            }
     
             if (touch.overlaps(checkmark))
             {
@@ -733,8 +884,29 @@ class FreeplaySubState extends FlxSubState
                 if (touch.justReleased)
                 {
                     FlxG.save.data.sistemInvert = !FlxG.save.data.sistemInvert;
+                    if(FlxG.save.data.sistemThundMay)
+                    {
+                    FlxG.save.data.sistemThundMay = false;
+                    checkmark4.animation.play("LOL");
+                    }
                     if (FlxG.save.data.sistemInvert == true) checkmark3.animation.play("Check");
                     else checkmark3.animation.play("LOL");
+                }
+            }
+            if (touch.overlaps(checkmark4))
+            {
+                if(FlxG.save.data.optionsInfo)info.text = "Everything seems normal... until you realise bolts also come under your feet and also flickers";
+                info.screenCenter(X);
+                if (touch.justPressed)
+                {
+                    FlxG.save.data.sistemThundMay = !FlxG.save.data.sistemThundMay;
+                    if(FlxG.save.data.sistemInvert)
+                    {
+                        FlxG.save.data.sistemInvert = false;
+                        checkmark3.animation.play("LOL");
+                    }
+                    if (FlxG.save.data.sistemThundMay == true) checkmark4.animation.play("Check");
+                    else checkmark4.animation.play("LOL");
                 }
             }
     
