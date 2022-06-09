@@ -64,7 +64,7 @@ class MainMenuState extends FlxState
     var backText:FlxText;
     #end
 
-    public static var gameVer:String = "0.1.1";
+    public static var gameVer:String = "0.1.2";
     var n:Float;
 
     override public function create()
