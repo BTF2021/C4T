@@ -26,21 +26,35 @@ class PlayState extends FlxState
 {
     var cat:FlxSprite;
 	var boltGen:FlxObject; //For random bolt x variation
-	var bolt:FlxSprite;    
+	var bolt:FlxSprite;
+	var boltflip:Bool;
+
 	var bolt1:FlxSprite;
-	var bolt2:FlxSprite;   //Me being dumb, cuz I can't clone
+    var bolt1flip:Bool;
+
+	var bolt2:FlxSprite;  //Me being dumb, cuz I can't clone
+    var bolt2flip:Bool;
+
 	var bolt3:FlxSprite;
+    var bolt3flip:Bool;
+
 	var bolt4:FlxSprite;
+    var bolt4flip:Bool;
+
 	var bolt5:FlxSprite;
+    var bolt5flip:Bool;
+	
 	var bolt6:FlxSprite;
+    var bolt6flip:Bool;
+
 	var bolt7:FlxSprite;
+    var bolt7flip:Bool;
+
 	var bolt8:FlxSprite;
+    var bolt8flip:Bool;
+
 	var bolt9:FlxSprite;
-	#if mobile
-	var bolt10:FlxSprite;
-	var bolt11:FlxSprite;
-	var bolt12:FlxSprite;
-	#end
+    var bolt9flip:Bool;
 
 	var timr:Float = 0;
 	var time:FlxText;
@@ -50,6 +64,7 @@ class PlayState extends FlxState
 	var countdown:FlxText;
 
 	var helth:Int;
+	var v:Int;                                                   //Speed
 	var Halth:FlxText;
 	var refer:FlxSound;
 
@@ -62,13 +77,41 @@ class PlayState extends FlxState
 	#if mobile
 	var back:FlxSprite;
     var backText:FlxText;
-
-	var dummy:Int = 0;                                                  //Dummy Float for No tp mode
 	#end
+
+	var anSpeed:Float;
 
 	override public function create()
 	{
 		super.create();
+
+		if(FlxG.save.data.sistemThundMay) FlxG.save.data.sistemInvert = false;  //don't flip the cat
+		if(FlxG.save.data.sistemInvert)
+		{
+			boltflip = true;
+			bolt1flip = true;
+			bolt2flip = true;
+			bolt3flip = true;
+			bolt4flip = true;
+			bolt5flip = true;
+			bolt6flip = true;
+			bolt7flip = true;
+			bolt8flip = true;
+			bolt9flip = true;
+		}
+		else
+		{
+			boltflip = false;
+			bolt1flip = false;
+			bolt2flip = false;
+			bolt3flip = false;
+			bolt4flip = false;
+			bolt5flip = false;
+			bolt6flip = false;
+			bolt7flip = false;
+			bolt8flip = false;
+			bolt9flip = false;
+		}
 
 		FlxG.sound.music.stop();
 
@@ -76,6 +119,9 @@ class PlayState extends FlxState
 		cat.screenCenter();
 		if (!FlxG.save.data.sistemInvert) cat.y = 620;
 		else cat.y = 100;
+		#if desktop
+		if (FlxG.save.data.sistemThundMay && FlxG.save.data.sistemMaso) cat.screenCenter();
+		#end
 		if (FlxG.save.data.sistemInvert) cat.flipY = true;
 		add(cat);
 
@@ -132,23 +178,6 @@ class PlayState extends FlxState
 		bolt9.y = 0;
 		if (FlxG.save.data.sistemInvert) bolt9.flipY = true;
 		add(bolt9);
-		#if mobile
-		bolt10 = new FlxSprite().loadGraphic(AssetPaths.bolt__png, true, 51, 199);
-		bolt10.alpha = 0;
-		bolt10.y = 0;
-		if (FlxG.save.data.sistemInvert) bolt10.flipY = true;
-		add(bolt10);
-		bolt11 = new FlxSprite().loadGraphic(AssetPaths.bolt__png, true, 51, 199);
-		bolt11.alpha = 0;
-		bolt11.y = 0;
-		if (FlxG.save.data.sistemInvert) bolt11.flipY = true;
-		add(bolt11);
-		bolt12 = new FlxSprite().loadGraphic(AssetPaths.bolt__png, true, 51, 199);
-		bolt12.alpha = 0;
-		bolt12.y = 0;
-		if (FlxG.save.data.sistemInvert) bolt12.flipY = true;
-		add(bolt12);
-		#end
 
 		#if !mobile
         time = new FlxText(20, 20);
@@ -187,14 +216,22 @@ class PlayState extends FlxState
 			case 1:
 				helth = 7;
 				n = 1.5;
+				v = 7;
 			case 2:
 				helth = 5;
 				n = 2;
+				v = 9;
 			case 3:
 				helth = 3;
 				n = 2.5;
+				v = 10;
 			case 4:
 				helth = 1;
+				v = 12;
+			case 5:
+				helth = FlxG.save.data.customLives;
+				n = FlxG.save.data.customCooldown;
+				v = FlxG.save.data.customSpeed;
 		}
 
 		#if mobile
@@ -207,6 +244,9 @@ class PlayState extends FlxState
         backText.text = "<";
         add(backText);
 		#end
+
+		if(FlxG.save.data.optionsAnimation) anSpeed=0.08;
+        else anSpeed=0.00001;
 
 		begin();
 	}
@@ -232,284 +272,405 @@ class PlayState extends FlxState
 				if(!FlxG.save.data.optionsEaster) countdown.text = 'Dodge is disabled';
 				else countdown.text = "Dodge: unable to can :)";
 			}
+			if(FlxG.save.data.sistemThundMay && isAlive)
+			{
+				if (FlxG.random.bool(50)) FlxG.save.data.sistemInvert = true;
+				else FlxG.save.data.sistemInvert = false;
+			}
 		}
 
 		boltGen.x = FlxG.random.int(0, Main.gameWidth);
-		if (!FlxG.save.data.sistemInvert)                                                             //For not thinking more smarter, you get two
-		{
-		if(FlxG.random.bool(5) && bolt.y >=Main.gameHeight + 199)
-		{
-			bolt.revive();
-			FlxTween.tween(bolt, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-			bolt.x = boltGen.x;
-			bolt.y = 0;
-		}
-		if(FlxG.random.bool(5) && bolt1.y >=Main.gameHeight + 199)
-		{
-			bolt1.revive();
-			FlxTween.tween(bolt1, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-			bolt1.x = boltGen.x;
-			bolt1.y = 0;
-		}
-		if(FlxG.random.bool(5) && bolt2.y >=Main.gameHeight + 199)
-		{
-			bolt2.revive();
-			FlxTween.tween(bolt2, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-			bolt2.x = boltGen.x;
-			bolt2.y = 0;
-		}
-		if(FlxG.random.bool(5) && bolt3.y >=Main.gameHeight + 199)
-		{
-			bolt3.revive();
-			FlxTween.tween(bolt3, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-			bolt3.x = boltGen.x;
-			bolt3.y = 0;
-		}
-		if(FlxG.random.bool(5) && bolt4.y >=Main.gameHeight + 199)
-		{
-		    if (timr >= 10 && !FlxG.save.data.sistemFullPow)
-		    {
-			bolt4.revive();
-			FlxTween.tween(bolt4, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-			bolt4.x = boltGen.x;
-			bolt4.y = 0;
-		    }
-		    else if (FlxG.save.data.sistemFullPow)
-		    {
-			bolt4.revive();
-			FlxTween.tween(bolt4, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-			bolt4.x = boltGen.x;
-			bolt4.y = 0;
-		    }
-		}
-		if(FlxG.random.bool(5) && bolt5.y >=Main.gameHeight + 199)
-		{
-			if (timr >= 10 && !FlxG.save.data.sistemFullPow)
-			{
-			    bolt5.revive();
-			    FlxTween.tween(bolt5, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-			    bolt5.x = boltGen.x;
-			    bolt5.y = 0;
-			}
-			else if (FlxG.save.data.sistemFullPow)
-			{
-				bolt5.revive();
-			    FlxTween.tween(bolt5, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-			    bolt5.x = boltGen.x;
-			    bolt5.y = 0;
-			}
-		}
-		if(FlxG.random.bool(5) && bolt6.y >=Main.gameHeight + 199)
-		{
-			if (timr >= 10 && !FlxG.save.data.sistemFullPow)
-			{
-				bolt6.revive();
-				FlxTween.tween(bolt6, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt6.x = boltGen.x;
-				bolt6.y = 0;
-			}
-			else if (FlxG.save.data.sistemFullPow)
-			{
-				bolt6.revive();
-				FlxTween.tween(bolt6, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt6.x = boltGen.x;
-				bolt6.y = 0;
-			}
-		}
-		if(FlxG.random.bool(5) && bolt7.y >=Main.gameHeight + 199)
-		{
-			if (timr >= 20 && !FlxG.save.data.sistemFullPow)
-			{
-				bolt7.revive();
-				FlxTween.tween(bolt7, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt7.x = boltGen.x;
-				bolt7.y = 0;
-			}
-			else if (FlxG.save.data.sistemFullPow)
-			{
-				bolt7.revive();
-				FlxTween.tween(bolt7, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt7.x = boltGen.x;
-				bolt7.y = 0;
-			}
-		}
-		if(FlxG.random.bool(5) && bolt8.y >=Main.gameHeight + 199)
-		{
-			if (timr >= 20 && !FlxG.save.data.sistemFullPow)
-			{
-				bolt8.revive();
-				FlxTween.tween(bolt8, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt8.x = boltGen.x;
-				bolt8.y = 0;
-			}
-			else if (FlxG.save.data.sistemFullPow)
-			{
-				bolt8.revive();
-				FlxTween.tween(bolt8, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt8.x = boltGen.x;
-				bolt8.y = 0;
-			}
-		}
-		if(FlxG.random.bool(5) && bolt9.y >=Main.gameHeight + 199)
-		{
-			if (timr >= 20 && !FlxG.save.data.sistemFullPow)
-			{
-				bolt9.revive();
-				FlxTween.tween(bolt9, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt9.x = boltGen.x;
-				bolt9.y = 0;
-			}
-			else if (FlxG.save.data.sistemFullPow)
-			{
-				bolt9.revive();
-				FlxTween.tween(bolt9, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt9.x = boltGen.x;
-				bolt9.y = 0;
-			}
-		}
+		
 
-	    }
-
-
-		else if (FlxG.save.data.sistemInvert)                                                                      //The second one
+		if(FlxG.random.bool(5))                                                         //I'm gonna do 12 of them, if I would just enter all of them in only one, all of them would appear
 		{
-		if(FlxG.random.bool(5) && bolt.y <=Main.gameHeight - Main.gameHeight - 199)
+			if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
 			{
-				bolt.revive();
-				FlxTween.tween(bolt, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
+                boltflip = FlxG.save.data.sistemInvert;
+                if(!boltflip) bolt.y = Main.gameHeight + 200;
+				else bolt.y = -399;
+			}
+			if(bolt.y >=Main.gameHeight + 199 && !boltflip)
+			{
+			    bolt.revive();
+			    bolt.flipY = false;
+			    FlxTween.tween(bolt, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+			    bolt.x = boltGen.x;
+			    bolt.y = -199;
+			}
+			else if(bolt.y <= -398 && boltflip)
+			{
+                bolt.revive();
+				bolt.flipY = true;
+				FlxTween.tween(bolt, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
 				bolt.x = boltGen.x;
-				bolt.y = 720;
-			}
-			if(FlxG.random.bool(5) && bolt1.y <=Main.gameHeight - Main.gameHeight - 199)
-			{
-				bolt1.revive();
-				FlxTween.tween(bolt1, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt1.x = boltGen.x;
-				bolt1.y = 720;
-			}
-			if(FlxG.random.bool(5) && bolt2.y <=Main.gameHeight - Main.gameHeight - 199)
-			{
-				bolt2.revive();
-				FlxTween.tween(bolt2, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt2.x = boltGen.x;
-				bolt2.y = 720;
-			}
-			if(FlxG.random.bool(5) && bolt3.y <=Main.gameHeight - Main.gameHeight - 199)
-			{
-				bolt3.revive();
-				FlxTween.tween(bolt3, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt3.x = boltGen.x;
-				bolt3.y = 720;
-			}
-			if(FlxG.random.bool(5) && bolt4.y <=Main.gameHeight - Main.gameHeight - 199)
-			{
-				if (timr >= 10 && !FlxG.save.data.sistemFullPow)
-				{
-				bolt4.revive();
-				FlxTween.tween(bolt4, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt4.x = boltGen.x;
-				bolt4.y = 720;
-				}
-				else if (FlxG.save.data.sistemFullPow)
-				{
-				bolt4.revive();
-				FlxTween.tween(bolt4, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-				bolt4.x = boltGen.x;
-				bolt4.y = 720;
-				}
-			}
-			if(FlxG.random.bool(5) && bolt5.y <=Main.gameHeight - Main.gameHeight - 199)
-			{
-				if (timr >= 10 && !FlxG.save.data.sistemFullPow)
-				{
-					bolt5.revive();
-					FlxTween.tween(bolt5, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt5.x = boltGen.x;
-					bolt5.y = 720;
-				}
-				else if (FlxG.save.data.sistemFullPow)
-				{
-					bolt5.revive();
-					FlxTween.tween(bolt5, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt5.x = boltGen.x;
-					bolt5.y = 720;
-				}
-			}
-			if(FlxG.random.bool(5) && bolt6.y <=Main.gameHeight - Main.gameHeight - 199)
-			{
-				if (timr >= 10 && !FlxG.save.data.sistemFullPow)
-				{
-					bolt6.revive();
-					FlxTween.tween(bolt6, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt6.x = boltGen.x;
-					bolt6.y = 720;
-				}
-				else if (FlxG.save.data.sistemFullPow)
-				{
-					bolt6.revive();
-					FlxTween.tween(bolt6, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt6.x = boltGen.x;
-					bolt6.y = 720;
-				}
-				}
-			if(FlxG.random.bool(5) && bolt7.y <=Main.gameHeight - Main.gameHeight - 199)
-			{
-				if (timr >= 20 && !FlxG.save.data.sistemFullPow)
-				{
-					bolt7.revive();
-					FlxTween.tween(bolt7, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt7.x = boltGen.x;
-					bolt7.y = 720;
-				}
-				else if (FlxG.save.data.sistemFullPow)
-				{
-					bolt7.revive();
-					FlxTween.tween(bolt7, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt7.x = boltGen.x;
-					bolt7.y = 720;
-				}
-			}
-			if(FlxG.random.bool(5) && bolt8.y <=Main.gameHeight - Main.gameHeight - 199)
-			{
-				if (timr >= 20 && !FlxG.save.data.sistemFullPow)
-				{
-					bolt8.revive();
-					FlxTween.tween(bolt8, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt8.x = boltGen.x;
-					bolt8.y = 720;
-				}
-				else if (FlxG.save.data.sistemFullPow)
-				{
-					bolt8.revive();
-					FlxTween.tween(bolt8, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt8.x = boltGen.x;
-					bolt8.y = 720;
-				}
-			}
-			if(FlxG.random.bool(5) && bolt9.y <=Main.gameHeight - Main.gameHeight - 199)
-			{
-				if (timr >= 20 && !FlxG.save.data.sistemFullPow)
-				{
-					bolt9.revive();
-					FlxTween.tween(bolt9, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt9.x = boltGen.x;
-					bolt9.y = 720;
-				}
-				else if (FlxG.save.data.sistemFullPow)
-				{
-					bolt9.revive();
-					FlxTween.tween(bolt9, {alpha: 1}, 0.08, {ease: FlxEase.quartInOut});
-					bolt9.x = boltGen.x;
-					bolt9.y = 720;
-				}
+				bolt.y = Main.gameHeight;
 			}
 		}
-
+		if(FlxG.random.bool(5))
+			{
+				if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
+					{
+						bolt1flip = FlxG.save.data.sistemInvert;
+						if(!bolt1flip) bolt1.y = Main.gameHeight + 200;
+						else bolt1.y = -399;
+					}
+				if(bolt1.y >=Main.gameHeight + 199 && !bolt1flip)
+				{
+					bolt1.revive();
+					bolt1.flipY = false;
+					FlxTween.tween(bolt1, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt1.x = boltGen.x;
+					bolt1.y = -199;
+				}
+				else if(bolt1.y <= -398 && bolt1flip)
+				{
+					bolt1.revive();
+					bolt1.flipY = true;
+					FlxTween.tween(bolt1, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt1.x = boltGen.x;
+					bolt1.y = Main.gameHeight;
+				}
+			}
+		if(FlxG.random.bool(5))
+			{
+				if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
+					{
+						bolt2flip = FlxG.save.data.sistemInvert;
+						if(!bolt2flip) bolt2.y = Main.gameHeight + 200;
+						else bolt2.y = -399;
+					}
+				if(bolt2.y >=Main.gameHeight + 199 && !bolt2flip)
+				{
+					bolt2.revive();
+					bolt2.flipY = false;
+					FlxTween.tween(bolt2, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt2.x = boltGen.x;
+					bolt2.y = -199;
+				}
+				else if(bolt2.y <= -398 && bolt2flip)
+				{
+					bolt2.revive();
+					bolt2.flipY = true;
+					FlxTween.tween(bolt2, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt2.x = boltGen.x;
+					bolt2.y = Main.gameHeight;
+				}
+			}
+		if(FlxG.random.bool(5))
+			{
+				if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
+					{
+						bolt3flip = FlxG.save.data.sistemInvert;
+						if(!bolt3flip) bolt3.y = Main.gameHeight + 200;
+						else bolt3.y = -399;
+					}
+				if(bolt3.y >=Main.gameHeight + 199 && !bolt3flip)
+				{
+					bolt3.revive();
+					bolt3.flipY = false;
+					FlxTween.tween(bolt3, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt3.x = boltGen.x;
+					bolt3.y = -199;
+				}
+				else if(bolt3.y <= -398 && bolt3flip)
+				{
+					bolt3.revive();
+					bolt3.flipY = true;
+					FlxTween.tween(bolt3, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt3.x = boltGen.x;
+					bolt3.y = Main.gameHeight;
+				}
+			}
+		if(FlxG.random.bool(5))
+		{
+			if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
+				{
+					bolt4flip = FlxG.save.data.sistemInvert;
+					if(!bolt4flip) bolt4.y = Main.gameHeight + 200;
+					else bolt4.y = -399;
+				}
+			if(bolt4.y >=Main.gameHeight + 199 && !bolt4flip)
+			{
+		        if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+		        {
+			    bolt4.revive();
+			    bolt4.flipY = false;
+			    FlxTween.tween(bolt4, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+			    bolt4.x = boltGen.x;
+			    bolt4.y = -199;
+		        }
+		        else if (FlxG.save.data.sistemFullPow)
+		        {
+			    bolt4.revive();
+			    bolt4.flipY = false;
+			    FlxTween.tween(bolt4, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+			    bolt4.x = boltGen.x;
+			    bolt4.y =-199;
+		        }
+		    }
+			else if(bolt4.y <= -398 && bolt4flip)
+			{
+				if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+					{
+					bolt4.revive();
+					bolt4.flipY = true;
+					FlxTween.tween(bolt4, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt4.x = boltGen.x;
+					bolt4.y = Main.gameHeight;
+					}
+					else if (FlxG.save.data.sistemFullPow)
+					{
+					bolt4.revive();
+					bolt4.flipY = true;
+					FlxTween.tween(bolt4, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt4.x = boltGen.x;
+					bolt4.y = Main.gameHeight;
+					}
+			}
+		}
+		if(FlxG.random.bool(5))
+		{
+			if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
+				{
+					bolt5flip = FlxG.save.data.sistemInvert;
+					if(!bolt5flip) bolt5.y = Main.gameHeight + 200;
+					else bolt5.y = -399;
+				}
+			if(bolt5.y >=Main.gameHeight + 199 && !bolt5flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+					{
+					bolt5.revive();
+					bolt5.flipY = false;
+					FlxTween.tween(bolt5, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt5.x = boltGen.x;
+					bolt5.y = -199;
+					}
+					else if (FlxG.save.data.sistemFullPow)
+					{
+					bolt5.revive();
+					bolt5.flipY = false;
+					FlxTween.tween(bolt5, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt5.x = boltGen.x;
+					bolt5.y = -199;
+					}
+				}
+				else if(bolt5.y <= -398 && bolt5flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+						{
+						bolt5.revive();
+						bolt5.flipY = true;
+						FlxTween.tween(bolt5, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt5.x = boltGen.x;
+						bolt5.y = Main.gameHeight;
+						}
+						else if (FlxG.save.data.sistemFullPow)
+						{
+						bolt5.revive();
+						bolt5.flipY = true;
+						FlxTween.tween(bolt5, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt5.x = boltGen.x;
+						bolt5.y = Main.gameHeight;
+						}
+				}
+		}
+		if(FlxG.random.bool(5))
+		{
+			if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
+				{
+					bolt6flip = FlxG.save.data.sistemInvert;
+					if(!bolt6flip) bolt6.y = Main.gameHeight + 200;
+					else bolt6.y = -399;
+				}
+			if(bolt6.y >=Main.gameHeight + 199 && !bolt6flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+					{
+					bolt6.revive();
+					bolt6.flipY = false;
+					FlxTween.tween(bolt6, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt6.x = boltGen.x;
+					bolt6.y = -199;
+					}
+					else if (FlxG.save.data.sistemFullPow)
+					{
+					bolt6.revive();
+					bolt6.flipY = false;
+					FlxTween.tween(bolt6, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt6.x = boltGen.x;
+					bolt6.y = -199;
+					}
+				}
+				else if(bolt6.y <= -398 && bolt6flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+						{
+						bolt6.revive();
+						bolt6.flipY = true;
+						FlxTween.tween(bolt6, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt6.x = boltGen.x;
+						bolt6.y = Main.gameHeight;
+						}
+						else if (FlxG.save.data.sistemFullPow)
+						{
+						bolt6.revive();
+						bolt6.flipY = true;
+						FlxTween.tween(bolt6, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt6.x = boltGen.x;
+						bolt6.y = Main.gameHeight;
+						}
+				}
+		}
+		if(FlxG.random.bool(5))
+		{
+			if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
+				{
+					bolt7flip = FlxG.save.data.sistemInvert;
+					if(!bolt7flip) bolt7.y = Main.gameHeight + 200;
+					else bolt7.y = -399;
+				}
+			if(bolt7.y >=Main.gameHeight + 199 && !bolt7flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+					{
+					bolt7.revive();
+					bolt7.flipY = false;
+					FlxTween.tween(bolt7, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt7.x = boltGen.x;
+					bolt7.y = -199;
+					}
+					else if (FlxG.save.data.sistemFullPow)
+					{
+					bolt7.revive();
+					bolt7.flipY = false;
+					FlxTween.tween(bolt7, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt7.x = boltGen.x;
+					bolt7.y = -199;
+					}
+				}
+				else if(bolt7.y <= -398 && bolt7flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+						{
+						bolt7.revive();
+						bolt7.flipY = true;
+						FlxTween.tween(bolt7, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt7.x = boltGen.x;
+						bolt7.y = Main.gameHeight;
+						}
+						else if (FlxG.save.data.sistemFullPow)
+						{
+						bolt7.revive();
+						bolt7.flipY = true;
+						FlxTween.tween(bolt7, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt7.x = boltGen.x;
+						bolt7.y = Main.gameHeight;
+						}
+				}
+		}
+		if(FlxG.random.bool(5))
+		{
+			if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
+				{
+					bolt8flip = FlxG.save.data.sistemInvert;
+					if(!bolt8flip) bolt8.y = Main.gameHeight + 200;
+					else bolt8.y = -399;
+				}
+			if(bolt8.y >=Main.gameHeight + 199 && !bolt8flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+					{
+					bolt8.revive();
+					bolt8.flipY = false;
+					FlxTween.tween(bolt8, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt8.x = boltGen.x;
+					bolt8.y = -199;
+					}
+					else if (FlxG.save.data.sistemFullPow)
+					{
+					bolt8.revive();
+					bolt8.flipY = false;
+					FlxTween.tween(bolt8, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt8.x = boltGen.x;
+					bolt8.y = -199;
+					}
+				}
+				else if(bolt8.y <= -398 && bolt8flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+						{
+						bolt8.revive();
+						bolt8.flipY = true;
+						FlxTween.tween(bolt8, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt8.x = boltGen.x;
+						bolt8.y = Main.gameHeight;
+						}
+						else if (FlxG.save.data.sistemFullPow)
+						{
+						bolt8.revive();
+						bolt8.flipY = true;
+						FlxTween.tween(bolt8, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt8.x = boltGen.x;
+						bolt8.y = Main.gameHeight;
+						}
+				}
+		}
+		if(FlxG.random.bool(5))
+		{
+			if(FlxG.save.data.sistemThundMay && FlxG.random.bool(5))
+				{
+					bolt9flip = FlxG.save.data.sistemInvert;
+					if(!bolt9flip) bolt9.y = Main.gameHeight + 200;
+					else bolt9.y = -399;
+				}
+			if(bolt9.y >=Main.gameHeight + 199 && !bolt9flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+					{
+					bolt9.revive();
+					bolt9.flipY = false;
+					FlxTween.tween(bolt9, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt9.x = boltGen.x;
+					bolt9.y = -199;
+					}
+					else if (FlxG.save.data.sistemFullPow)
+					{
+					bolt9.revive();
+					bolt9.flipY = false;
+					FlxTween.tween(bolt9, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+					bolt9.x = boltGen.x;
+					bolt9.y = -199;
+					}
+				}
+				else if(bolt9.y <= -398 && bolt9flip)
+				{
+					if (timr >= 10 && !FlxG.save.data.sistemFullPow)
+						{
+						bolt9.revive();
+						bolt9.flipY = true;
+						FlxTween.tween(bolt9, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt9.x = boltGen.x;
+						bolt9.y = Main.gameHeight;
+						}
+						else if (FlxG.save.data.sistemFullPow)
+						{
+						bolt9.revive();
+						bolt9.flipY = true;
+						FlxTween.tween(bolt9, {alpha: 1}, anSpeed, {ease: FlxEase.quartInOut});
+						bolt9.x = boltGen.x;
+						bolt9.y = Main.gameHeight;
+						}
+				}
+		}
 
 		if(begen && !FlxG.save.data.sistemMaso)
 		{
 			#if !mobile
 		    cat.x = FlxG.mouse.x - 52;
+			if (cat.x + 52 < FlxG.mouse.x) cat.flipX = true;
+			else cat.flipX = false;
 		    cat.y = FlxG.mouse.y - 56;
 			#else
 			for (touch in FlxG.touches.list)
@@ -527,17 +688,23 @@ class PlayState extends FlxState
 			#if !mobile
 			if(FlxG.keys.pressed.UP && cat.y > -56) cat.y = cat.y - 6;
 			if(FlxG.keys.pressed.DOWN && cat.y < 670) cat.y = cat.y + 6;
-			if(FlxG.keys.pressed.LEFT && cat.x > -56) cat.x = cat.x - 6;
-			if(FlxG.keys.pressed.RIGHT && cat.x < 1230) cat.x = cat.x + 6;
+			if(FlxG.keys.pressed.LEFT && cat.x > -56)
+			{
+				cat.x = cat.x - 6;
+				cat.flipX = true;
+			}
+			if(FlxG.keys.pressed.RIGHT && cat.x < 1230)
+			{
+				cat.x = cat.x + 6;
+				cat.flipX = false;
+			}
 			#else
 			for (touch in FlxG.touches.list)
 			{
 			    if(!touch.overlaps(back))
 			    {
-				    if (cat.x < touch.x - 152 || cat.x > touch.x + 152) dummy=0;         //The dummy int is not used for the mechanic, just for filling
-				    else cat.x = touch.x - 52;
-				    if (cat.y < touch.y - 156 || cat.y > touch.y + 156) dummy=0;
-				    else cat.y = touch.y - 56;
+				    if (!(cat.x < touch.x - 152 || cat.x > touch.x + 152)) cat.x = touch.x - 52;
+				    if (!(cat.y < touch.y - 156 || cat.y > touch.y + 156)) cat.y = touch.y - 56;
 			    }
 			}
 			#end
@@ -556,7 +723,7 @@ class PlayState extends FlxState
 					cat.alpha = 0.3;
 					IFrame = true;
 					dodge = false;
-					new FlxTimer().start(0.15, ITimer, 1);
+					new FlxTimer().start(0.5, ITimer, 1);
 					new FlxTimer().start(n, DodgeCountdown, 1);
 				}
 				else if (!begen)
@@ -575,7 +742,7 @@ class PlayState extends FlxState
 					cat.alpha = 0.3;
 					IFrame = true;
 					dodge = false;
-					new FlxTimer().start(0.15, ITimer, 1);
+					new FlxTimer().start(0.5, ITimer, 1);
 					new FlxTimer().start(n, DodgeCountdown, 1);
 				}
 					else if (!begen)
@@ -605,7 +772,7 @@ class PlayState extends FlxState
 					cat.alpha = 0.3;
 					IFrame = true;
 					dodge = false;
-					new FlxTimer().start(0.15, ITimer, 1);
+					new FlxTimer().start(0.5, ITimer, 1);
 					new FlxTimer().start(n, DodgeCountdown, 1);
 				}
 				else if (!begen)
@@ -626,6 +793,7 @@ class PlayState extends FlxState
 
 		if(!IFrame && begen && isAlive)
 		{
+			#if desktop
 		    if(cat.overlaps(bolt) || cat.overlaps(bolt1) || cat.overlaps(bolt2) || cat.overlaps(bolt3) || cat.overlaps(bolt4) || cat.overlaps(bolt5) || cat.overlaps(bolt6) || cat.overlaps(bolt7) || cat.overlaps(bolt8) || cat.overlaps(bolt9))
 		    {
 			    IFrame = true;
@@ -634,6 +802,16 @@ class PlayState extends FlxState
 			    helth --;
 				if (helth == 1 && FlxG.save.data.optionsEaster) refer.play(true);
 		    }
+			#else
+			if(cat.overlaps(bolt) || cat.overlaps(bolt1) || cat.overlaps(bolt2) || cat.overlaps(bolt3) || cat.overlaps(bolt4) || cat.overlaps(bolt5) || cat.overlaps(bolt6) || cat.overlaps(bolt7) || cat.overlaps(bolt8) || cat.overlaps(bolt9))
+			{
+				IFrame = true;
+				cat.color = 0xfa1d1d;
+				new FlxTimer().start(0.5, ITimer, 1);
+				helth --;
+				if (helth == 1 && FlxG.save.data.optionsEaster) refer.play(true);
+			}
+			#end 
 		}
 
 		if(helth <= 0)
@@ -670,6 +848,7 @@ class PlayState extends FlxState
 			            case 4:
 				            helth = 1;
 		            }
+					if(FlxG.save.data.sistemThundMay) FlxG.save.data.sistemInvert = false;
 					if (!FlxG.save.data.sistemInvert)
 					{
                         bolt.y = 0;
@@ -686,15 +865,15 @@ class PlayState extends FlxState
 					else if(FlxG.save.data.sistemInvert)
 					{
 						bolt.y = Main.gameHeight;
-					    bolt1.y = Main.gameHeight - Main.gameHeight - 199;
-					    bolt2.y = Main.gameHeight - Main.gameHeight - 199;
-					    bolt3.y = Main.gameHeight - Main.gameHeight - 199;
-					    bolt4.y = Main.gameHeight - Main.gameHeight - 199;
-					    bolt5.y = Main.gameHeight - Main.gameHeight - 199;
-					    bolt6.y = Main.gameHeight - Main.gameHeight - 199;
-					    bolt7.y = Main.gameHeight - Main.gameHeight - 199;
-					    bolt8.y = Main.gameHeight - Main.gameHeight - 199;
-					    bolt9.y = Main.gameHeight - Main.gameHeight - 199;
+					    bolt1.y = -398;
+					    bolt2.y = -398;
+					    bolt3.y = -398;
+					    bolt4.y = -398;
+					    bolt5.y = -398;
+					    bolt6.y = -398;
+					    bolt7.y = -398;
+					    bolt8.y = -398;
+					    bolt9.y = -398;
 					}
 
 					bolt1.kill();
@@ -707,6 +886,17 @@ class PlayState extends FlxState
 					bolt8.kill();
 					bolt9.kill();
 
+					bolt.x = -51;
+					bolt1.x = -51;
+                    bolt2.x = -51;
+					bolt3.x = -51;
+					bolt4.x = -51;
+					bolt5.x = -51;
+					bolt6.x = -51;
+					bolt7.x = -51;
+					bolt8.x = -51;
+					bolt9.x = -51;
+
 					bolt1.alpha = 0;
 					bolt2.alpha = 0;
 					bolt3.alpha = 0;
@@ -716,6 +906,7 @@ class PlayState extends FlxState
 					bolt7.alpha = 0;
 					bolt8.alpha = 0;
 					bolt9.alpha = 0;
+			
 					isAlive = true;
 					ded.text = '';
 					dodge = true;
@@ -741,6 +932,7 @@ class PlayState extends FlxState
 							case 4:
 								helth = 1;
 						}
+						if(FlxG.save.data.sistemThundMay) FlxG.save.data.sistemInvert = false;
 						if (!FlxG.save.data.sistemInvert)
 						{
 							bolt.y = 0;
@@ -753,27 +945,22 @@ class PlayState extends FlxState
 							bolt7.y = Main.gameHeight + 199;
 							bolt8.y = Main.gameHeight + 199;
 							bolt9.y = Main.gameHeight + 199;
-							bolt10.y = Main.gameHeight + 199;
-							bolt11.y = Main.gameHeight + 199;
-							bolt12.y = Main.gameHeight + 199;
 						}
 						else if(FlxG.save.data.sistemInvert)
 						{
 							bolt.y = Main.gameHeight;
-							bolt1.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt2.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt3.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt4.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt5.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt6.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt7.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt8.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt9.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt10.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt11.y = Main.gameHeight - Main.gameHeight - 199;
-							bolt12.y = Main.gameHeight - Main.gameHeight - 199;
+							bolt1.y = -398;
+							bolt2.y = -398;
+							bolt3.y = -398;
+							bolt4.y = -398;
+							bolt5.y = -398;
+							bolt6.y = -398;
+							bolt7.y = -398;
+							bolt8.y = -398;
+							bolt9.y = -398;
 						}
 	
+						bolt.kill();
 						bolt1.kill();
 						bolt2.kill();
 						bolt3.kill();
@@ -783,9 +970,17 @@ class PlayState extends FlxState
 						bolt7.kill();
 						bolt8.kill();
 						bolt9.kill();
-						bolt10.kill();
-						bolt11.kill();
-						bolt12.kill();
+
+						bolt.x = -51;
+						bolt1.x = -51;
+                        bolt2.x = -51;
+						bolt3.x = -51;
+						bolt4.x = -51;
+						bolt5.x = -51;
+						bolt6.x = -51;
+						bolt7.x = -51;
+						bolt8.x = -51;
+						bolt9.x = -51;
 	
 						bolt1.alpha = 0;
 						bolt2.alpha = 0;
@@ -796,9 +991,6 @@ class PlayState extends FlxState
 						bolt7.alpha = 0;
 						bolt8.alpha = 0;
 						bolt9.alpha = 0;
-						bolt10.alpha = 0;
-						bolt11.alpha = 0;
-						bolt12.alpha = 0;
 						isAlive = true;
 						ded.text = '';
 						dodge = true;
@@ -809,187 +1001,60 @@ class PlayState extends FlxState
 
 		if(isAlive && begen)
 		{
-			if (!FlxG.save.data.sistemInvert)
-			{
-			    switch(FlxG.save.data.sistemDifficulty)
-			    {
-				case 1:
-					bolt.y = bolt.y + 7;
-		            bolt1.y = bolt1.y + 7;
-		            bolt2.y = bolt2.y + 7;
-		            bolt3.y = bolt3.y + 7;
-		            bolt4.y = bolt4.y + 7;
-		            bolt5.y = bolt5.y + 7;
-		            bolt6.y = bolt6.y + 7;
-		            bolt7.y = bolt7.y + 7;
-		            bolt8.y = bolt8.y + 7;
-		            bolt9.y = bolt9.y + 7;
-					#if mobile
-					bolt10.y = bolt10.y + 7;
-		            bolt11.y = bolt11.y + 7;
-		            bolt12.y = bolt12.y + 7;
-					#end
-				case 2:
-				    bolt.y = bolt.y + 9;
-		            bolt1.y = bolt1.y + 9;
-		            bolt2.y = bolt2.y + 9;
-		            bolt3.y = bolt3.y + 9;
-		            bolt4.y = bolt4.y + 9;
-		            bolt5.y = bolt5.y + 9;
-		            bolt6.y = bolt6.y + 9;
-		            bolt7.y = bolt7.y + 9;
-		            bolt8.y = bolt8.y + 9;
-		            bolt9.y = bolt9.y + 9;
-					#if mobile
-					bolt10.y = bolt10.y + 9;
-		            bolt11.y = bolt11.y + 9;
-		            bolt12.y = bolt12.y + 9;
-					#end
-				case 3:
-					bolt.y = bolt.y + 10;
-		            bolt1.y = bolt1.y + 10;
-		            bolt2.y = bolt2.y + 10;
-		            bolt3.y = bolt3.y + 10;
-		            bolt4.y = bolt4.y + 10;
-		            bolt5.y = bolt5.y + 10;
-		            bolt6.y = bolt6.y + 10;
-		            bolt7.y = bolt7.y + 10;
-		            bolt8.y = bolt8.y + 10;
-		            bolt9.y = bolt9.y + 10;
-					#if mobile
-					bolt10.y = bolt10.y + 10;
-		            bolt10.y = bolt11.y + 10;
-		            bolt10.y = bolt12.y + 10;
-					#end
-				case 4:
-					bolt.y = bolt.y + 12;
-		            bolt1.y = bolt1.y + 12;
-		            bolt2.y = bolt2.y + 12;
-		            bolt3.y = bolt3.y + 12;
-		            bolt4.y = bolt4.y + 12;
-		            bolt5.y = bolt5.y + 12;
-		            bolt6.y = bolt6.y + 12;
-		            bolt7.y = bolt7.y + 12;
-		            bolt8.y = bolt8.y + 12;
-		            bolt9.y = bolt9.y + 12;
-					#if mobile
-					bolt10.y = bolt10.y + 12;
-		            bolt11.y = bolt11.y + 12;
-		            bolt12.y = bolt12.y + 12;
-					#end
-			    }
-		    }
-			else if (FlxG.save.data.sistemInvert)
-		    {
-                switch(FlxG.save.data.sistemDifficulty)
-			    {
-				case 1:
-					bolt.y = bolt.y - 7;
-		            bolt1.y = bolt1.y - 7;
-		            bolt2.y = bolt2.y - 7;
-		            bolt3.y = bolt3.y - 7;
-		            bolt4.y = bolt4.y - 7;
-		            bolt5.y = bolt5.y - 7;
-		            bolt6.y = bolt6.y - 7;
-		            bolt7.y = bolt7.y - 7;
-		            bolt8.y = bolt8.y - 7;
-		            bolt9.y = bolt9.y - 7;
-					#if mobile
-					bolt10.y = bolt10.y - 7;
-		            bolt11.y = bolt11.y - 7;
-		            bolt12.y = bolt12.y - 7;
-					#end
-				case 2:
-				    bolt.y = bolt.y - 9;
-		            bolt1.y = bolt1.y - 9;
-		            bolt2.y = bolt2.y - 9;
-		            bolt3.y = bolt3.y - 9;
-		            bolt4.y = bolt4.y - 9;
-		            bolt5.y = bolt5.y - 9;
-		            bolt6.y = bolt6.y - 9;
-		            bolt7.y = bolt7.y - 9;
-		            bolt8.y = bolt8.y - 9;
-		            bolt9.y = bolt9.y - 9;
-					#if mobile
-					bolt10.y = bolt10.y - 9;
-		            bolt11.y = bolt11.y - 9;
-		            bolt12.y = bolt12.y - 9;
-					#end
-				case 3:
-					bolt.y = bolt.y - 10;
-		            bolt1.y = bolt1.y - 10;
-		            bolt2.y = bolt2.y - 10;
-		            bolt3.y = bolt3.y - 10;
-		            bolt4.y = bolt4.y - 10;
-		            bolt5.y = bolt5.y - 10;
-		            bolt6.y = bolt6.y - 10;
-		            bolt7.y = bolt7.y - 10;
-		            bolt8.y = bolt8.y - 10;
-		            bolt9.y = bolt9.y - 10;
-					#if mobile
-					bolt10.y = bolt10.y - 10;
-		            bolt10.y = bolt11.y - 10;
-		            bolt10.y = bolt12.y - 10;
-					#end
-				case 4:
-					bolt.y = bolt.y - 12;
-		            bolt1.y = bolt1.y - 12;
-		            bolt2.y = bolt2.y - 12;
-		            bolt3.y = bolt3.y - 12;
-		            bolt4.y = bolt4.y - 12;
-		            bolt5.y = bolt5.y - 12;
-		            bolt6.y = bolt6.y - 12;
-		            bolt7.y = bolt7.y - 12;
-		            bolt8.y = bolt8.y - 12;
-		            bolt9.y = bolt9.y - 12;
-					#if mobile
-					bolt10.y = bolt10.y - 12;
-		            bolt11.y = bolt11.y - 12;
-		            bolt12.y = bolt12.y - 12;
-					#end
-			    }
-			}
+				
+			if(!boltflip)bolt.y = bolt.y + v;
+			else bolt.y = bolt.y - v;
+		    if(!bolt1flip)bolt1.y = bolt1.y + v;
+			else bolt1.y = bolt1.y - v;
+		    if(!bolt2flip)bolt2.y = bolt2.y + v;
+			else bolt2.y = bolt2.y - v;
+		    if(!bolt3flip)bolt3.y = bolt3.y + v;
+			else bolt3.y = bolt3.y - v;
+		    if(!bolt4flip)bolt4.y = bolt4.y + v;
+			else bolt4.y = bolt4.y - v;
+		    if(!bolt5flip)bolt5.y = bolt5.y + v;
+			else bolt5.y = bolt5.y - v;
+		    if(!bolt6flip)bolt6.y = bolt6.y + v;
+			else bolt6.y = bolt6.y - v;
+			if(!bolt7flip)bolt7.y = bolt7.y + v;
+			else bolt7.y = bolt7.y - v;
+		    if(!bolt8flip)bolt8.y = bolt8.y + v;
+			else bolt8.y = bolt8.y - v;
+		    if(!bolt9flip)bolt9.y = bolt9.y + v;
+			else bolt9.y = bolt9.y - v;
 		}
 
 		
 
-		if (!FlxG.save.data.sistemInvert)
-		{
-		    if(bolt.y >= Main.gameHeight + 199) {bolt.kill(); bolt.alpha = 0;}
-		    if(bolt1.y >= Main.gameHeight + 199) {bolt1.kill(); bolt1.alpha = 0;}
-		    if(bolt2.y >= Main.gameHeight + 199) {bolt2.kill(); bolt2.alpha = 0;}
-		    if(bolt3.y >= Main.gameHeight + 199) {bolt3.kill(); bolt3.alpha = 0;}
-		    if(bolt4.y >= Main.gameHeight + 199) {bolt4.kill(); bolt4.alpha = 0;}
-		    if(bolt5.y >= Main.gameHeight + 199) {bolt5.kill(); bolt5.alpha = 0;}
-		    if(bolt6.y >= Main.gameHeight + 199) {bolt6.kill(); bolt6.alpha = 0;}
-		    if(bolt7.y >= Main.gameHeight + 199) {bolt7.kill(); bolt7.alpha = 0;}
-		    if(bolt8.y >= Main.gameHeight + 199) {bolt8.kill(); bolt8.alpha = 0;}
-		    if(bolt9.y >= Main.gameHeight + 199) {bolt9.kill(); bolt9.alpha = 0;}
-			#if mobile
-			if(bolt10.y >= Main.gameHeight + 199) {bolt10.kill(); bolt10.alpha = 0;}
-			if(bolt11.y >= Main.gameHeight + 199) {bolt11.kill(); bolt11.alpha = 0;}
-			if(bolt12.y >= Main.gameHeight + 199) {bolt12.kill(); bolt12.alpha = 0;}
-			#end
-		}
-		else if (FlxG.save.data.sistemInvert)
-		{
-            if(bolt.y <= Main.gameHeight - Main.gameHeight - 199) {bolt.kill(); bolt.alpha = 0;}
-		    if(bolt1.y <= Main.gameHeight - Main.gameHeight - 199) {bolt1.kill(); bolt1.alpha = 0;}
-		    if(bolt2.y <= Main.gameHeight - Main.gameHeight - 199) {bolt2.kill(); bolt2.alpha = 0;}
-		    if(bolt3.y <= Main.gameHeight - Main.gameHeight - 199) {bolt3.kill(); bolt3.alpha = 0;}
-		    if(bolt4.y <= Main.gameHeight - Main.gameHeight - 199) {bolt4.kill(); bolt4.alpha = 0;}
-		    if(bolt5.y <= Main.gameHeight - Main.gameHeight - 199) {bolt5.kill(); bolt5.alpha = 0;}
-		    if(bolt6.y <= Main.gameHeight - Main.gameHeight - 199) {bolt6.kill(); bolt6.alpha = 0;}
-		    if(bolt7.y <= Main.gameHeight - Main.gameHeight - 199) {bolt7.kill(); bolt7.alpha = 0;}
-		    if(bolt8.y <= Main.gameHeight - Main.gameHeight - 199) {bolt8.kill(); bolt8.alpha = 0;}
-		    if(bolt9.y <= Main.gameHeight - Main.gameHeight - 199) {bolt9.kill(); bolt9.alpha = 0;}
-			#if mobile
-			if(bolt10.y <= Main.gameHeight - Main.gameHeight - 199) {bolt10.kill(); bolt10.alpha = 0;}
-			if(bolt11.y <= Main.gameHeight - Main.gameHeight - 199) {bolt11.kill(); bolt11.alpha = 0;}
-			if(bolt12.y <= Main.gameHeight - Main.gameHeight - 199) {bolt12.kill(); bolt12.alpha = 0;}
-			#end
-		}
+		    if(bolt.y >= Main.gameHeight + 199 && !boltflip) {bolt.kill(); bolt.alpha = 0;}
+			else if(bolt.y <= -398 && boltflip) {bolt.kill(); bolt.alpha = 0;}
 
+		    if(bolt1.y >= Main.gameHeight + 199 && !bolt1flip) {bolt1.kill(); bolt1.alpha = 0;}
+			else if (bolt1.y <= -398 && bolt1flip) {bolt1.kill(); bolt1.alpha = 0;}
+
+		    if(bolt2.y >= Main.gameHeight + 199 && !bolt2flip) {bolt2.kill(); bolt2.alpha = 0;}
+			else if (bolt2.y <= -398 && bolt2flip) {bolt2.kill(); bolt2.alpha = 0;}
+
+		    if(bolt3.y >= Main.gameHeight + 199 && !bolt3flip) {bolt3.kill(); bolt3.alpha = 0;}
+			else if (bolt3.y <= -398 && bolt3flip) {bolt3.kill(); bolt3.alpha = 0;}
+
+		    if(bolt4.y >= Main.gameHeight + 199 && !bolt4flip) {bolt4.kill(); bolt4.alpha = 0;}
+			else if (bolt4.y <= -398 && bolt4flip) {bolt4.kill(); bolt4.alpha = 0;}
+
+		    if(bolt5.y >= Main.gameHeight + 199 && !bolt5flip) {bolt5.kill(); bolt5.alpha = 0;}
+			else if (bolt5.y <= -398 && bolt5flip) {bolt5.kill(); bolt5.alpha = 0;}
+
+		    if(bolt6.y >= Main.gameHeight + 199 && !bolt6flip) {bolt6.kill(); bolt6.alpha = 0;}
+			else if (bolt6.y <= -398 && bolt6flip) {bolt6.kill(); bolt6.alpha = 0;}
+
+		    if(bolt7.y >= Main.gameHeight + 199 && !bolt7flip) {bolt7.kill(); bolt7.alpha = 0;}
+			else if (bolt7.y <= -398 && bolt7flip) {bolt7.kill(); bolt7.alpha = 0;}
+
+		    if(bolt8.y >= Main.gameHeight + 199 && !bolt8flip) {bolt8.kill(); bolt8.alpha = 0;}
+			else if (bolt8.y <= -398 && bolt8flip) {bolt8.kill(); bolt8.alpha = 0;}
+
+		    if(bolt9.y >= Main.gameHeight + 199 && !bolt9flip) {bolt9.kill(); bolt9.alpha = 0;}
+			else if (bolt9.y <= -398 && bolt9flip) {bolt9.kill(); bolt9.alpha = 0;}
 		/*
 		if(FlxG.mouse.x <= 52) cat.x = 52;     
 		else if(FlxG.mouse.x >= 1228) cat.x = 1228;
@@ -1002,8 +1067,10 @@ class PlayState extends FlxState
 		if (isAlive && begen && FlxG.save.data.optionsZecimal)
 		{
 			timr = timr + 0.01;
-			var a:Float= (timr / 0.01) % 100;
-			if(a/60 >= 1)timr = timr + 0.40;   //Finally, an accurate stopwatch
+			var a:Float = (timr / 0.01) % 100;
+			Math.fround(a);
+			if(a/60 >= 1) timr = timr + 0.40;   //Finally, an accurate stopwatch
+			timr = FlxMath.roundDecimal(timr, 2);
 		}
 		else if (isAlive && begen && !FlxG.save.data.optionsZecimal) timr ++;
 	}
