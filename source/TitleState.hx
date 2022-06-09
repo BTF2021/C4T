@@ -189,7 +189,7 @@ class TitleState extends FlxState
         }, 1);
         if (FlxG.save.data.optionsUpdate)
         {
-            new FlxTimer().start(0.6, function(tmr:FlxTimer)
+            new FlxTimer().start(0.5, function(tmr:FlxTimer)
             {
                 //Thank you KadeDev and its contributors for doing this
                 title.angle = 0;
@@ -220,6 +220,6 @@ class TitleState extends FlxState
 			    http.request();
             }, 1);
         }
-        else new FlxTimer().start(0.6, function(tmr:FlxTimer) {FlxG.switchState(new MainMenuState());}, 1);   
+        else new FlxTimer().start(0.5, function(tmr:FlxTimer) {FlxG.switchState(new MainMenuState());}, 1);   
     }
 }
