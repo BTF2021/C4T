@@ -145,7 +145,12 @@ class PauseSubState extends FlxSubState
         {
             marker.x = giveUp.x - 10;
             marker.y = giveUp.y - 10;
-            if(FlxG.mouse.justPressed) FlxG.switchState(new MainMenuState());
+            if(FlxG.mouse.justPressed)
+            {
+                if (FlxG.save.data.sistemThundMay && FlxG.save.data.sistemInvert)FlxG.save.data.sistemInvert = false;     //Why should Inverted mode and Thunder Mayhem be both activated
+                FlxG.save.flush();
+                FlxG.switchState(new MainMenuState());
+            }
         }
         #else
         for (touch in FlxG.touches.list)
@@ -183,9 +188,14 @@ class PauseSubState extends FlxSubState
             }
             if(touch.overlaps(giveUp) && canBeClicked)
             {
-            marker.x = giveUp.x - 10;
-            marker.y = giveUp.y - 10;
-            if(touch.justPressed) FlxG.switchState(new MainMenuState());
+                marker.x = giveUp.x - 10;
+                marker.y = giveUp.y - 10;
+                if(touch.justPressed)
+                {
+                    if (FlxG.save.data.sistemThundMay && FlxG.save.data.sistemInvert)FlxG.save.data.sistemInvert = false;     //Why should Inverted mode and Thunder Mayhem be both activated
+                    FlxG.save.flush();
+                    FlxG.switchState(new MainMenuState());
+                }
             }
         }
         #end
