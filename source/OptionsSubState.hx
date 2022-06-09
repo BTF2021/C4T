@@ -44,6 +44,7 @@ class OptionsSubState extends FlxSubState
     var n:Float;
 
     var changed:Bool = false;
+    var beep:FlxSound;
 
     override public function create():Void
     {
@@ -138,7 +139,9 @@ class OptionsSubState extends FlxSubState
         FlxTween.tween(title, {alpha: 1, y: 0}, 0.2, {ease: FlxEase.quartInOut});
 
         if(FlxG.save.data.optionsAnimation) n=0.15;
-        else n=0.000000001;
+        else n=0.00001;
+
+        beep = FlxG.sound.load(AssetPaths.Tone__ogg);
 
         UpdateText();
 
@@ -338,7 +341,11 @@ class OptionsSubState extends FlxSubState
         {
             canBeClicked = false;
             if(!changed)close();
-            else FlxG.switchState(new MainMenuState());
+            else
+            {
+                FlxG.save.flush();
+                FlxG.switchState(new MainMenuState());
+            }
         }
         #else
         for (touch in FlxG.touches.list)
@@ -454,6 +461,7 @@ class OptionsSubState extends FlxSubState
                 case 3:
                     if(FlxG.save.data.optionsShutUp && FlxG.save.data.optionsInfo) info.text = "Shut up";
                     else if(FlxG.save.data.optionsInfo)info.text = "Shut up BTF";
+                    info.screenCenter(X);
                     if (touch.justPressed)
                     {
                         FlxG.save.data.optionsShutUp = !FlxG.save.data.optionsShutUp;
@@ -469,7 +477,11 @@ class OptionsSubState extends FlxSubState
             {
                 canBeClicked = false;
                 if(!changed)close();
-                else FlxG.switchState(new MainMenuState());
+                else
+                {
+                    FlxG.save.flush();
+                    FlxG.switchState(new MainMenuState());
+                }
             }
         }
         #end
@@ -531,5 +543,6 @@ class OptionsSubState extends FlxSubState
                     }
                 }
         }
+        DefaultData.initSave();
     }
 }
