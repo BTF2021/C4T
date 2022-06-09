@@ -5,16 +5,27 @@ class DefaultData
 {
 	public static function initSave()
 	{
-		if (FlxG.save.data.sistemDifficulty == null || FlxG.save.data.sistemDifficulty < 1 || FlxG.save.data.sistemDifficulty > 4)
+		if (FlxG.save.data.sistemDifficulty == null || FlxG.save.data.sistemDifficulty < 1 || FlxG.save.data.sistemDifficulty > 5)
 			FlxG.save.data.sistemDifficulty = 2;
+        if (FlxG.save.data.customLives == null)
+			FlxG.save.data.customLives = 5;
+		if (FlxG.save.data.customSpeed == null)
+			FlxG.save.data.customSpeed = 9;
+		if (FlxG.save.data.customCooldown == null)
+			FlxG.save.data.customCooldown = 2;
+
 	    if (FlxG.save.data.sistemMaso == null)
 			FlxG.save.data.sistemMaso = false;
-
 	    if (FlxG.save.data.sistemFullPow == null)
             FlxG.save.data.sistemFullPow = false;
-	    
 		if (FlxG.save.data.sistemInvert == null)
             FlxG.save.data.sistemInvert = false;
+        if (FlxG.save.data.sistemThundMay == null)
+			FlxG.save.data.sistemThundMay = false;
+
+		if (FlxG.save.data.sistemThundMay && FlxG.save.data.sistemInvert)
+			FlxG.save.data.sistemInvert = false;
+
 		if (FlxG.save.data.sistemOption == null)
 			FlxG.save.data.sistemOption = 1;
 
